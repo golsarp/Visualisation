@@ -32,6 +32,7 @@ if __name__ == "__main__":
         ],
     )
 
+    # Comment
     # Define interactions
     @app.callback(
         Output(scatterplot1.html_id, "figure"),
