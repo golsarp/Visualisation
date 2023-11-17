@@ -10,7 +10,7 @@ from dash.dependencies import Input, Output
 if __name__ == "__main__":
     # Create data
     df = px.data.iris()
-
+    print("Class")
     # Instantiate custom views
     scatterplot1 = Scatterplot("Scatterplot 1", "sepal_length", "sepal_width", df)
     scatterplot2 = Scatterplot("Scatterplot 2", "petal_length", "petal_width", df)
