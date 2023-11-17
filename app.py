@@ -9,6 +9,7 @@ from dash.dependencies import Input, Output
 
 if __name__ == "__main__":
     # Create data
+    print("Hello world")
     df = px.data.iris()
 
     # Instantiate custom views
