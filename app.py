@@ -5,7 +5,7 @@ from jbi100_app.views.scatterplot import Scatterplot
 from dash import html
 import plotly.express as px
 from dash.dependencies import Input, Output
-
+#test
 
 if __name__ == "__main__":
     # Create data
