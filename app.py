@@ -16,7 +16,7 @@ if __name__ == "__main__":
     scatterplot1 = Scatterplot("Scatterplot 1", "sepal_length", "sepal_width", df)
     scatterplot2 = Scatterplot("Scatterplot 2", "petal_length", "petal_width", df)
     scatterplot3 = Scatterplot("Scatterplot 3", "sepal_length", "sepal_width", df)
-
+    # comment
     app.layout = html.Div(
         id="app-container",
         children=[
