@@ -40,12 +40,6 @@ def generate_control_card():
                 options=[{"label": i, "value": i} for i in color_list2],
                 value=color_list2[0],
             ),
-            html.Label("Color scatterplot 3"),
-            dcc.Dropdown(
-                id="select-color-scatter-3",
-                options=[{"label": i, "value": i} for i in color_list1],
-                value=color_list1[0],
-            ),
         ],
         style={"textAlign": "float-left"},
     )

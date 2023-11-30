@@ -1,6 +1,8 @@
 from jbi100_app.main import app
 from jbi100_app.views.menu import make_menu_layout
 from jbi100_app.views.scatterplot import Scatterplot
+from jbi100_app.views.field import Field
+
 
 from dash import html
 import plotly.express as px
@@ -12,10 +14,11 @@ if __name__ == "__main__":
     print("Hello world")
     df = px.data.iris()
     print("Class")
+    # print(df)
     # Instantiate custom views
     scatterplot1 = Scatterplot("Scatterplot 1", "sepal_length", "sepal_width", df)
     scatterplot2 = Scatterplot("Scatterplot 2", "petal_length", "petal_width", df)
-    scatterplot3 = Scatterplot("Scatterplot 3", "sepal_length", "sepal_width", df)
+    field = Field("field", "x", "y", df)
     # comment
     app.layout = html.Div(
         id="app-container",
@@ -28,10 +31,22 @@ if __name__ == "__main__":
             html.Div(
                 id="right-column",
                 className="nine columns",
-                children=[scatterplot1, scatterplot2, scatterplot3],
+                # children=[scatterplot1, scatterplot2],
+                children=[field],
             ),
         ],
     )
+
+    @app.callback(
+        Output(field.html_id, "figure"),
+        [
+            # Input("select-color-scatter-1", "value"),
+            # Input(scatterplot1.html_id, "selectedData"),
+        ],
+    )
+    def update_scatter_1():
+        print("Field")
+        return field.positionPlayer()
 
     # Comment
     # Define interactions
@@ -55,15 +70,5 @@ if __name__ == "__main__":
     )
     def update_scatter_2(selected_color, selected_data):
         return scatterplot2.update(selected_color, selected_data)
-
-    @app.callback(
-        Output(scatterplot3.html_id, "figure"),
-        [
-            Input("select-color-scatter-3", "value"),
-            Input(scatterplot3.html_id, "selectedData"),
-        ],
-    )
-    def update_scatter_3(selected_color, selected_data):
-        return scatterplot3.update(selected_color, selected_data)
 
     app.run_server(debug=False, dev_tools_ui=False)
