@@ -15,7 +15,6 @@ import plotly.express as px
 from dash.dependencies import Input, Output
 import pandas as pd
 
-
 if __name__ == "__main__":
     # Create data
     print("Hello world")
