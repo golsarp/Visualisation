@@ -2,3 +2,15 @@
 
 color_list1 = ["green", "blue"]
 color_list2 = ["red", "purple"]
+position_mapping_home = {"GK": 1, "DF": 2, "MF": 4, "FW": 6}
+
+position_mapping_away = {"GK": 13, "DF": 12, "MF": 10, "FW": 8}
+
+player_poss_path = (
+    "FIFA DataSet/Data/FIFA World Cup 2022 Player Data/player_possession.csv"
+)
+
+GK = 1
+DF = 2
+MF = 4
+FW = 6
