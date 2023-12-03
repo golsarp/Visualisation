@@ -42,13 +42,13 @@ if __name__ == "__main__":
     app.layout = html.Div(
         id="app-container",
         children=[
-            # Left column
-            html.Div(
-                id="left-column", className="three columns", children=make_menu_layout()
-            ),
+            # # Left column
+            # html.Div(
+            #     id="left-column", className="three columns", children=make_menu_layout()
+            # ),
             # Right column
             html.Div(
-                id="right-column",
+                id="left-column",
                 className="nine columns",
                 children=[
                     # New input boxes at the top
@@ -95,6 +95,11 @@ if __name__ == "__main__":
                     field,
                 ],
             ),
+            html.Div(
+                id="right-column",
+                className="three columns",
+                children=make_menu_layout(),
+            ),
         ],
     )
 
@@ -107,11 +112,23 @@ if __name__ == "__main__":
         ],
     )
     def update_field_1(select, home, away):
-        print("Field executed")
+        # print("Field executed")
         # for selected data with box and lasso selection
-        # print("select", select)
+        print("select", select)
         print(home, away)
         return field.positionPlayer(home, away)
+
+    @app.callback(
+        Output("field-2-output", "figure"),
+        [
+            Input(field.html_id, "selectedData"),
+        ],
+    )
+    def selected_data(select):
+        # Your code for the second callback function
+        print("Field 2 executed")
+        print("select", select)
+        return 0
 
     # for sleecting points on the field
     # @app.callback(Output("output", "children"), [Input(field.html_id, "relayoutData")])

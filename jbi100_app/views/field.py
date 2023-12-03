@@ -38,12 +38,25 @@ class Field(html.Div):
         df_home = self.process_df(home, True)
         df_away = self.process_df(away, False)
         df_concat = pd.concat([df_home, df_away], ignore_index=True)
+        hover_columns = [
+            "player",
+            "position",
+            "team",
+            "age",
+            "birth_year",
+            "dispossessed",
+            "passes_received",
+            "progressive_passes_received",
+        ]
+
+        # print(df_concat)
         self.fig = px.scatter(
             df_concat,
             y="position_y",
             x="position_x",
             color="position",
             symbol="position",
+            hover_data=hover_columns,
         )
         # fig = px.scatter(self.df, y="nation", x="count", color="medal", symbol="medal")
         # Add annotations (text on top of values)
@@ -55,7 +68,7 @@ class Field(html.Div):
                 text=str(row["player"]),  # text to display
                 # showarrow=True,
                 # arrowhead=2,
-                # arrowcolor="black",
+                # arrowcolor="bslack",
                 # arrowsize=1,
                 # arrowwidth=2,
                 ax=0,
