@@ -7,6 +7,7 @@ from jbi100_app.config import (
     position_mapping_home,
     position_mapping_away,
     player_poss_path,
+    formation,
 )
 
 
@@ -68,6 +69,18 @@ if __name__ == "__main__":
                                         placeholder="Home Team",
                                         style={"width": "100%"},
                                     ),
+                                    html.Label("Formation"),
+                                    dcc.Dropdown(
+                                        id="home-formation",
+                                        options=[
+                                            {"label": form, "value": form}
+                                            for form in formation
+                                        ],
+                                        value=formation[0],
+                                        multi=False,
+                                        placeholder="Formation",
+                                        style={"width": "100%"},
+                                    ),
                                 ],
                                 style={"display": "inline-block", "width": "48%"},
                             ),
@@ -81,6 +94,18 @@ if __name__ == "__main__":
                                             for team in teams
                                         ],
                                         value="Wales",
+                                        multi=False,
+                                        placeholder="Opponent Team",
+                                        style={"width": "100%"},
+                                    ),
+                                    html.Label("Formation"),
+                                    dcc.Dropdown(
+                                        id="away-formation",
+                                        options=[
+                                            {"label": form, "value": form}
+                                            for form in formation
+                                        ],
+                                        value=formation[0],
                                         multi=False,
                                         placeholder="Opponent Team",
                                         style={"width": "100%"},
@@ -109,14 +134,21 @@ if __name__ == "__main__":
             Input(field.html_id, "selectedData"),
             Input("home-dropdown", "value"),
             Input("away-dropdown", "value"),
+            Input("home-formation", "value"),
+            Input("away-formation", "value"),
+            # Input(field.html_id, "relayoutData"),
+            # Input(field.html_id, "relayoutData"),
         ],
     )
-    def update_field_1(select, home, away):
+    def update_field_1(select, home, away, home_form, away_from):
         # print("Field executed")
         # for selected data with box and lasso selection
         print("select", select)
+        print("home form: ", home_form)
+        print("away_from form: ", away_from)
+
         print(home, away)
-        return field.positionPlayer(home, away)
+        return field.positionPlayer(home, away, home_form, away_from)
 
     @app.callback(
         Output("field-2-output", "figure"),
