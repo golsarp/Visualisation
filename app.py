@@ -43,11 +43,6 @@ if __name__ == "__main__":
     app.layout = html.Div(
         id="app-container",
         children=[
-            # # Left column
-            # html.Div(
-            #     id="left-column", className="three columns", children=make_menu_layout()
-            # ),
-            # Right column
             html.Div(
                 id="left-column",
                 className="nine columns",
@@ -123,7 +118,9 @@ if __name__ == "__main__":
             html.Div(
                 id="right-column",
                 className="three columns",
-                children=make_menu_layout(),
+                children=[
+                    html.H3("Interactive Bars and Charts"),
+                ],
             ),
         ],
     )
