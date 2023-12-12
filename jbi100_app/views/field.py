@@ -23,6 +23,29 @@ class Field(html.Div):
             children=[html.H6(name), dcc.Graph(id=self.html_id)],
         )
 
+    def select_players(self, df, formation):
+        positions = formation.split("-")
+        positions = list(map(int, positions))
+        # print("pos", positions)
+
+        selected_players = pd.DataFrame()
+        bench_players = pd.DataFrame()
+
+        i = 0
+        for pos in positions:
+            # print("pos ", pos)
+            position_df = df[
+                df["position"].str.startswith(
+                    "FW" if i == 0 else "MF" if i == 1 else "DF" if i == 2 else "GK"
+                )
+            ]
+            selected_players = pd.concat([selected_players, position_df.head(pos)])
+            bench_players = pd.concat([bench_players, position_df.tail(-pos)])
+
+            i += 1
+
+        return selected_players, bench_players
+
     def process_df(self, team, home):
         df = pd.read_csv(player_poss_path)
         df_team = df[df["team"] == team].copy()
@@ -34,33 +57,91 @@ class Field(html.Div):
 
         return df_team
 
-    def positionPlayer(self, home, away):
+    def calculate_corrected_y(self, group, max_val):
+        # You can customize the factor as needed
+        factor = max_val / (len(group) + 1)
+        # print("factor ", factor)
+        # print("group ", group)
+        # group["numeric_y"] = pd.to_numeric(group["position_y"], errors="coerce")
+        res = group["position_y"] * factor
+        # print("res is ", res)
+        # print("gorup after ")
+        # group["res"] = group["position_y"] * factor
+
+        group["corrected_y"] = group["position_y"] * factor
+        # print("gorup after ")
+        # print(group)
+
+        return group["corrected_y"]
+
+    def positionPlayer(self, home, away, home_form, away_form):
         df_home = self.process_df(home, True)
         df_away = self.process_df(away, False)
-        df_concat = pd.concat([df_home, df_away], ignore_index=True)
+        # formation = ["4-2-3-1", "5-3-2-1", "4-4-2-1", "4-2-3-1", "4-1-4-1"]
+
+        df_home_field, df_home_bench = self.select_players(df_home, home_form)
+        df_away_field, df_away_bench = self.select_players(df_away, away_form)
+
+        max_val_home = df_home_field["position_y"].max()
+        max_val_away = df_away_field["position_y"].max()
+        max_val = max(max_val_home, max_val_away)
+
+        df_home_field["corrected_y"] = (
+            df_home_field.groupby("position")
+            .apply(lambda group: self.calculate_corrected_y(group, max_val))
+            .reset_index(level=0, drop=True)
+        )
+
+        # print(df_home_field)
+
+        df_away_field["corrected_y"] = (
+            df_away_field.groupby("position")
+            .apply(lambda group: self.calculate_corrected_y(group, max_val))
+            .reset_index(level=0, drop=True)
+        )
+
+        df_concat = pd.concat([df_home_field, df_away_field], ignore_index=True)
+
+        # df_concat = pd.concat([df_home, df_away], ignore_index=True)
+        hover_columns = [
+            "player",
+            "position",
+            "team",
+            "age",
+            "birth_year",
+            "dispossessed",
+            "passes_received",
+            "progressive_passes_received",
+        ]
+
+        # print(df_concat)
         self.fig = px.scatter(
             df_concat,
-            y="position_y",
+            y="corrected_y",
+            # y="position_y",
             x="position_x",
             color="position",
             symbol="position",
+            hover_data=hover_columns,
         )
         # fig = px.scatter(self.df, y="nation", x="count", color="medal", symbol="medal")
         # Add annotations (text on top of values)
         for i, row in df_concat.iterrows():
             self.fig.add_annotation(
                 x=row["position_x"],  # x-coordinate of the annotation
-                y=row["position_y"],  # y-coordinate of the annotation
+                y=row["corrected_y"],
+                # y=row["position_y"],  # y-coordinate of the annotation
                 # name=row["player"],
                 text=str(row["player"]),  # text to display
                 # showarrow=True,
                 # arrowhead=2,
-                # arrowcolor="black",
+                # arrowcolor="bslack",
                 # arrowsize=1,
                 # arrowwidth=2,
                 ax=0,
                 ay=-40,
             )
+
         self.fig.update_traces(marker_size=10)
-        # self.fig.show()
+
         return self.fig
