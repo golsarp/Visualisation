@@ -105,13 +105,13 @@ class Field(html.Div):
         # df_concat = pd.concat([df_home, df_away], ignore_index=True)
         hover_columns = [
             "player",
-            "position",
-            "team",
-            "age",
-            "birth_year",
-            "dispossessed",
-            "passes_received",
-            "progressive_passes_received",
+            # "position",
+            # "team",
+            # "age",
+            # "birth_year",
+            # "dispossessed",
+            # "passes_received",
+            # "progressive_passes_received",
         ]
 
         # print(df_concat)
@@ -123,6 +123,8 @@ class Field(html.Div):
             color="position",
             symbol="position",
             hover_data=hover_columns,
+            height=600,  # Set the height of the figure
+            width=800,
         )
         # fig = px.scatter(self.df, y="nation", x="count", color="medal", symbol="medal")
         # Add annotations (text on top of values)
