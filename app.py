@@ -2,7 +2,10 @@ from jbi100_app.main import app
 from jbi100_app.views.menu import make_menu_layout
 from jbi100_app.views.scatterplot import Scatterplot
 from jbi100_app.views.field import Field
-import dash_core_components as dcc
+from jbi100_app.views.radar_plot import Radar
+
+# import dash_core_components as dcc
+from dash import dcc
 from jbi100_app.config import (
     position_mapping_home,
     position_mapping_away,
@@ -13,7 +16,7 @@ from jbi100_app.config import (
 
 from dash import html
 import plotly.express as px
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 import pandas as pd
 
 if __name__ == "__main__":
@@ -24,21 +27,23 @@ if __name__ == "__main__":
     print("Class")
     # print(df)
     # Instantiate custom views
-    scatterplot1 = Scatterplot("Scatterplot 1", "sepal_length", "sepal_width", df)
+    # scatterplot1 = Scatterplot("Scatterplot 1", "sepal_length", "sepal_width", df)
     # scatterplot2 = Scatterplot("Scatterplot 2", "petal_length", "petal_width", df)
     field = Field("field", "x", "y", df_field)
-    # import plotly.express as px
+    # stores clicked players
+    # selected_players = []
+    selected_players = ["Cristiano Ronaldo", "Aaron Ramsey", "Abdelhamid Sabiri"]
 
-    # df = px.data.medals_long()
+    # If selection is on
+    player_select = False
 
-    # fig = px.scatter(df, y="nation", x="count", color="medal", symbol="medal")
-    # fig.update_traces(marker_size=10)
-    # fig.show()
+    radar_plot = Radar("Radar-plot", selected_players)
+    # radar_fig = radar_plot.plot_radar()
+    # radar_fig.show()
     df = pd.read_csv(player_poss_path)
     teams = df["team"].unique()[:5]
-    print(teams)
+    # print(teams)
 
-    # comment
     # Define the layout
     app.layout = html.Div(
         id="app-container",
@@ -77,7 +82,7 @@ if __name__ == "__main__":
                                         style={"width": "100%"},
                                     ),
                                 ],
-                                style={"display": "inline-block", "width": "48%"},
+                                style={"display": "inline-block", "width": "30%"},
                             ),
                             html.Div(
                                 [
@@ -106,20 +111,41 @@ if __name__ == "__main__":
                                         style={"width": "100%"},
                                     ),
                                 ],
-                                style={"display": "inline-block", "width": "48%"},
+                                style={"display": "inline-block", "width": "30%"},
                             ),
+                            # html.Div(
+                            #     [
+                            #         # html.Label("Selection "),
+                            #         # html.Button(
+                            #         #     children="Select Players Off",
+                            #         #     id="select-button",
+                            #         #     n_clicks=0,
+                            #         # ),
+                            #     ]
+                            # ),
                         ],
-                        style={"display": "flex", "justify-content": "space-between"},
+                        # style={
+                        #     "display": "flex",
+                        #     "justify-content": "space-between",
+                        # },
                     ),
                     # Existing components
                     field,
+                    # dcc.Graph(id="deneme", figure=radar_fig),
                 ],
             ),
             html.Div(
                 id="right-column",
                 className="three columns",
                 children=[
-                    html.H3("Interactive Bars and Charts"),
+                    html.Button(
+                        children="Select Players Off",
+                        id="select-button",
+                        n_clicks=0,
+                    ),
+                    radar_plot,
+                    html.Button("Plot button", id="radar-button", n_clicks=0),
+                    # dcc.Graph(id=radar_plot.html_id, figure=radar_fig),
                 ],
             ),
         ],
@@ -129,62 +155,58 @@ if __name__ == "__main__":
         Output(field.html_id, "figure"),
         [
             Input(field.html_id, "selectedData"),
+            Input(field.html_id, "clickData"),
             Input("home-dropdown", "value"),
             Input("away-dropdown", "value"),
             Input("home-formation", "value"),
             Input("away-formation", "value"),
-            # Input(field.html_id, "relayoutData"),
-            # Input(field.html_id, "relayoutData"),
         ],
     )
-    def update_field_1(select, home, away, home_form, away_from):
-        # print("Field executed")
-        # for selected data with box and lasso selection
-        print("select", select)
-        print("home form: ", home_form)
-        print("away_from form: ", away_from)
+    def update_field_1(select, click_data, home, away, home_form, away_from):
+        if click_data is not None and player_select:
+            print("select bool", player_select)
+            # Extract information about the clicked point
 
-        print(home, away)
+            clicked_point_info = click_data["points"][0]
+            # Print or use the information as needed
+            clicked_name = clicked_point_info["customdata"][0]
+            selected_players.append(clicked_name)
+
+            print("Clicked point info:", clicked_name)
+            print("selected player are ", selected_players)
+
+        # print("select", select)
+        # print("home form: ", home_form)
+        # print("away_from form: ", away_from)
+
+        # print(home, away)
         return field.positionPlayer(home, away, home_form, away_from)
 
     @app.callback(
-        Output("field-2-output", "figure"),
-        [
-            Input(field.html_id, "selectedData"),
-        ],
+        Output("select-button", "children"),
+        [Input("select-button", "n_clicks")],
     )
-    def selected_data(select):
-        # Your code for the second callback function
-        print("Field 2 executed")
-        print("select", select)
-        return 0
+    def update_output(n_clicks):
+        global player_select
+        global selected_players
 
-    # for sleecting points on the field
-    # @app.callback(Output("output", "children"), [Input(field.html_id, "relayoutData")])
-    # def display_selected_data(relayout_data):
-    #     return f"Relayout Data: {relayout_data}"
+        if n_clicks % 2 == 1:
+            new_label = "Selection ON"
+            player_select = True
+            return new_label
+        else:
+            print("selection ended ")
+            print(selected_players)
+            player_select = False
+            selected_players = []
+            new_label = "Selection OFF"
+            return new_label
 
-    # # Comment
-    # # Define interactions
-    # @app.callback(
-    #     Output(scatterplot1.html_id, "figure"),
-    #     [
-    #         Input("select-color-scatter-1", "value"),
-    #         Input(scatterplot1.html_id, "selectedData"),
-    #     ],
-    # )
-    # def update_scatter_1(selected_color, selected_data):
-    #     print("Plot 1 hello")
-    #     return scatterplot1.update(selected_color, selected_data)
-
-    # @app.callback(
-    #     Output(scatterplot2.html_id, "figure"),
-    #     [
-    #         Input("select-color-scatter-2", "value"),
-    #         Input(scatterplot1.html_id, "selectedData"),
-    #     ],
-    # )
-    # def update_scatter_2(selected_color, selected_data):
-    #     return scatterplot2.update(selected_color, selected_data)
+    @app.callback(
+        Output(radar_plot.html_id, "figure"),
+        [Input("radar-button", "n_clicks")],
+    )
+    def update_radar(button):
+        return radar_plot.plot_radar(selected_players)
 
     app.run_server(debug=False, dev_tools_ui=False)
