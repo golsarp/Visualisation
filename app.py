@@ -1,5 +1,4 @@
 from jbi100_app.main import app
-from jbi100_app.views.menu import make_menu_layout
 from jbi100_app.views.scatterplot import Scatterplot
 from jbi100_app.views.field import Field
 from jbi100_app.views.radar_plot import Radar
@@ -20,29 +19,19 @@ from dash.dependencies import Input, Output, State
 import pandas as pd
 
 if __name__ == "__main__":
-    # Create data
-    print("Hello world")
-    df_field = px.data.medals_long()
-    df = px.data.iris()
-    print("Class")
-    # print(df)
-    # Instantiate custom views
-    # scatterplot1 = Scatterplot("Scatterplot 1", "sepal_length", "sepal_width", df)
-    # scatterplot2 = Scatterplot("Scatterplot 2", "petal_length", "petal_width", df)
-    field = Field("field", "x", "y", df_field)
-    # stores clicked players
-    # selected_players = []
+    # Field object
+    field = Field("Footbal Field", "x", "y")
+    # clicked players, initially set to some players
     selected_players = ["Cristiano Ronaldo", "Aaron Ramsey", "Abdelhamid Sabiri"]
 
     # If selection is on
     player_select = False
-
+    # radar plot
     radar_plot = Radar("Radar-plot", selected_players)
-    # radar_fig = radar_plot.plot_radar()
-    # radar_fig.show()
+    # first 5 teams initially
+    # there are 32 teams, idk how to display them nicely
     df = pd.read_csv(player_poss_path)
     teams = df["team"].unique()[:5]
-    # print(teams)
 
     # Define the layout
     app.layout = html.Div(
@@ -50,7 +39,7 @@ if __name__ == "__main__":
         children=[
             html.Div(
                 id="left-column",
-                className="nine columns",
+                className="seven columns",
                 children=[
                     # New input boxes at the top
                     html.Div(
@@ -67,7 +56,7 @@ if __name__ == "__main__":
                                         value="Australia",
                                         multi=False,
                                         placeholder="Home Team",
-                                        style={"width": "100%"},
+                                        style={"width": "70%"},
                                     ),
                                     html.Label("Formation"),
                                     dcc.Dropdown(
@@ -79,7 +68,7 @@ if __name__ == "__main__":
                                         value=formation[0],
                                         multi=False,
                                         placeholder="Formation",
-                                        style={"width": "100%"},
+                                        style={"width": "70%"},
                                     ),
                                 ],
                                 style={"display": "inline-block", "width": "30%"},
@@ -96,7 +85,7 @@ if __name__ == "__main__":
                                         value="Wales",
                                         multi=False,
                                         placeholder="Opponent Team",
-                                        style={"width": "100%"},
+                                        style={"width": "70%"},
                                     ),
                                     html.Label("Formation"),
                                     dcc.Dropdown(
@@ -108,35 +97,26 @@ if __name__ == "__main__":
                                         value=formation[0],
                                         multi=False,
                                         placeholder="Opponent Team",
-                                        style={"width": "100%"},
+                                        style={"width": "70%"},
                                     ),
                                 ],
                                 style={"display": "inline-block", "width": "30%"},
+                                # style={"flex": "1", "margin": 0, "padding": 0},
                             ),
-                            # html.Div(
-                            #     [
-                            #         # html.Label("Selection "),
-                            #         # html.Button(
-                            #         #     children="Select Players Off",
-                            #         #     id="select-button",
-                            #         #     n_clicks=0,
-                            #         # ),
-                            #     ]
-                            # ),
                         ],
-                        # style={
-                        #     "display": "flex",
-                        #     "justify-content": "space-between",
-                        # },
+                        style={
+                            # "justify-content": "space-between",
+                            # "display": "flex",
+                        },
                     ),
                     # Existing components
+                    # field object
                     field,
-                    # dcc.Graph(id="deneme", figure=radar_fig),
                 ],
             ),
             html.Div(
                 id="right-column",
-                className="three columns",
+                className="five columns",
                 children=[
                     html.Button(
                         children="Select Players Off",
@@ -145,7 +125,6 @@ if __name__ == "__main__":
                     ),
                     radar_plot,
                     html.Button("Plot button", id="radar-button", n_clicks=0),
-                    # dcc.Graph(id=radar_plot.html_id, figure=radar_fig),
                 ],
             ),
         ],
@@ -162,24 +141,14 @@ if __name__ == "__main__":
             Input("away-formation", "value"),
         ],
     )
-    def update_field_1(select, click_data, home, away, home_form, away_from):
+    def update_field(select, click_data, home, away, home_form, away_from):
+        # get selected players
         if click_data is not None and player_select:
-            print("select bool", player_select)
             # Extract information about the clicked point
-
             clicked_point_info = click_data["points"][0]
-            # Print or use the information as needed
             clicked_name = clicked_point_info["customdata"][0]
             selected_players.append(clicked_name)
-
-            print("Clicked point info:", clicked_name)
-            print("selected player are ", selected_players)
-
-        # print("select", select)
-        # print("home form: ", home_form)
-        # print("away_from form: ", away_from)
-
-        # print(home, away)
+        # update field
         return field.positionPlayer(home, away, home_form, away_from)
 
     @app.callback(
@@ -187,16 +156,15 @@ if __name__ == "__main__":
         [Input("select-button", "n_clicks")],
     )
     def update_output(n_clicks):
+        # global used for player selection
         global player_select
         global selected_players
 
         if n_clicks % 2 == 1:
-            new_label = "Selection ON"
+            new_label = "Reset Players"
             player_select = True
             return new_label
         else:
-            print("selection ended ")
-            print(selected_players)
             player_select = False
             selected_players = []
             new_label = "Selection OFF"
@@ -206,6 +174,7 @@ if __name__ == "__main__":
         Output(radar_plot.html_id, "figure"),
         [Input("radar-button", "n_clicks")],
     )
+    # just to make it listen
     def update_radar(button):
         return radar_plot.plot_radar(selected_players)
 
