@@ -11,9 +11,9 @@ import pandas as pd
 
 
 class Field(html.Div):
-    def __init__(self, name, feature_x, feature_y, df):
-        self.html_id = name
-        self.df = df
+    def __init__(self, name, feature_x, feature_y):
+        self.html_id = name.lower().replace(" ", "-")
+
         self.feature_x = feature_x
         self.feature_y = feature_y
 
@@ -26,14 +26,11 @@ class Field(html.Div):
     def select_players(self, df, formation):
         positions = formation.split("-")
         positions = list(map(int, positions))
-        # print("pos", positions)
-
         selected_players = pd.DataFrame()
         bench_players = pd.DataFrame()
 
         i = 0
         for pos in positions:
-            # print("pos ", pos)
             position_df = df[
                 df["position"].str.startswith(
                     "FW" if i == 0 else "MF" if i == 1 else "DF" if i == 2 else "GK"
@@ -77,8 +74,7 @@ class Field(html.Div):
     def positionPlayer(self, home, away, home_form, away_form):
         df_home = self.process_df(home, True)
         df_away = self.process_df(away, False)
-        # formation = ["4-2-3-1", "5-3-2-1", "4-4-2-1", "4-2-3-1", "4-1-4-1"]
-
+        # Bench players also extracted
         df_home_field, df_home_bench = self.select_players(df_home, home_form)
         df_away_field, df_away_bench = self.select_players(df_away, away_form)
 
@@ -92,8 +88,6 @@ class Field(html.Div):
             .reset_index(level=0, drop=True)
         )
 
-        # print(df_home_field)
-
         df_away_field["corrected_y"] = (
             df_away_field.groupby("position")
             .apply(lambda group: self.calculate_corrected_y(group, max_val))
@@ -102,19 +96,17 @@ class Field(html.Div):
 
         df_concat = pd.concat([df_home_field, df_away_field], ignore_index=True)
 
-        # df_concat = pd.concat([df_home, df_away], ignore_index=True)
         hover_columns = [
             "player",
             # "position",
             # "team",
-            # "age",
-            # "birth_year",
+            "age",
+            "birth_year",
             # "dispossessed",
             # "passes_received",
             # "progressive_passes_received",
         ]
 
-        # print(df_concat)
         self.fig = px.scatter(
             df_concat,
             y="corrected_y",
@@ -126,7 +118,7 @@ class Field(html.Div):
             height=600,  # Set the height of the figure
             width=800,
         )
-        # fig = px.scatter(self.df, y="nation", x="count", color="medal", symbol="medal")
+
         # Add annotations (text on top of values)
         for i, row in df_concat.iterrows():
             self.fig.add_annotation(
@@ -135,11 +127,6 @@ class Field(html.Div):
                 # y=row["position_y"],  # y-coordinate of the annotation
                 # name=row["player"],
                 text=str(row["player"]),  # text to display
-                # showarrow=True,
-                # arrowhead=2,
-                # arrowcolor="bslack",
-                # arrowsize=1,
-                # arrowwidth=2,
                 ax=0,
                 ay=-40,
             )

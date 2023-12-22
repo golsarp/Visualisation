@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 
 
-# player_names = ["Cristiano Ronaldo", "Aaron Ramsey", "Abdelhamid Sabiri"]
+# csv files used
 path_poss = "FIFA DataSet/Data/FIFA World Cup 2022 Player Data/player_possession.csv"
 path_shoot = "FIFA DataSet/Data/FIFA World Cup 2022 Player Data/player_shooting.csv"
 path_pass = "FIFA DataSet/Data/FIFA World Cup 2022 Player Data/player_passing.csv"
@@ -38,7 +38,6 @@ class Radar(html.Div):
 
         r_extend = []
         for player in player_list:
-            # print("player :", player)
             player_r = []
             for i, att_info in enumerate(attributes):
                 # print(i, att_info[0])
@@ -46,19 +45,15 @@ class Radar(html.Div):
                 player_df = df[df["player"] == player]
                 # Extract the value of the 'dribbles_completed_pct' column
                 att_val = player_df[att_info[0]].values[0]
-                if att_val == "nan":
-                    print("nan")
-                    att_val = 0
-                # print("att_val", att_val)
                 player_r.append(att_val)
             r_extend.append(player_r)
 
+        # make nan values 0
         r_extend = [
             [0 if np.isnan(value) else value for value in inner_list]
             for inner_list in r_extend
         ]
-
-        print("r is ", r_extend)
+        # features displayed on plot
         self.fig = go.Figure()
         categories = [
             "Dribbles",
@@ -73,6 +68,7 @@ class Radar(html.Div):
                 go.Scatterpolar(
                     r=r_extend[i],
                     theta=categories,
+                    # filling option
                     # fill="toself",
                     name=player_list[i],
                 )
@@ -82,8 +78,8 @@ class Radar(html.Div):
             polar=dict(radialaxis=dict(visible=True, range=[0, 100])),
             showlegend=True,
             title="Passes and Shots on Target(%)",
-            height=600,
-            width=800,
+            height=300,
+            width=400,
             # margin=dict(l=100, r=100, t=100, b=100),
             # legend=dict(x=0, y=1.02),  # Adjust x and y to position the legend on top
         )
