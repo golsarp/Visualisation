@@ -2,6 +2,7 @@ from jbi100_app.main import app
 from jbi100_app.views.scatterplot import Scatterplot
 from jbi100_app.views.field import Field
 from jbi100_app.views.radar_plot import Radar
+from jbi100_app.views.team_plot import Bar
 
 # import dash_core_components as dcc
 from dash import dcc
@@ -124,12 +125,19 @@ if __name__ == "__main__":
                 id="right-column",
                 className="four columns",
                 children=[
+                    # radar plot
                     radar_plot,
                     html.Button("Plot button", id="radar-button", n_clicks=0),
                     html.Button(
                         children="Select Players Off",
                         id="select-button",
                         n_clicks=0,
+
+                    # team plot
+
+
+
+
                     ),
                 ],
             ),
