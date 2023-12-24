@@ -39,7 +39,7 @@ if __name__ == "__main__":
         children=[
             html.Div(
                 id="left-column",
-                className="seven columns",
+                className="eight columns",
                 children=[
                     # New input boxes at the top
                     html.Div(
@@ -58,7 +58,12 @@ if __name__ == "__main__":
                                         placeholder="Home Team",
                                         style={"width": "70%"},
                                     ),
-                                    html.Label("Formation"),
+                                ],
+                                style={"display": "inline-block", "width": "25%"},
+                            ),
+                            html.Div(
+                                [
+                                    html.Label("Home Formation"),
                                     dcc.Dropdown(
                                         id="home-formation",
                                         options=[
@@ -71,7 +76,7 @@ if __name__ == "__main__":
                                         style={"width": "70%"},
                                     ),
                                 ],
-                                style={"display": "inline-block", "width": "30%"},
+                                style={"display": "inline-block", "width": "25%"},
                             ),
                             html.Div(
                                 [
@@ -87,7 +92,13 @@ if __name__ == "__main__":
                                         placeholder="Opponent Team",
                                         style={"width": "70%"},
                                     ),
-                                    html.Label("Formation"),
+                                ],
+                                style={"display": "inline-block", "width": "25%"},
+                                # style={"flex": "1", "margin": 0, "padding": 0},
+                            ),
+                            html.Div(
+                                [
+                                    html.Label("Away Formation"),
                                     dcc.Dropdown(
                                         id="away-formation",
                                         options=[
@@ -100,14 +111,9 @@ if __name__ == "__main__":
                                         style={"width": "70%"},
                                     ),
                                 ],
-                                style={"display": "inline-block", "width": "30%"},
-                                # style={"flex": "1", "margin": 0, "padding": 0},
+                                style={"display": "inline-block", "width": "25%"},
                             ),
                         ],
-                        style={
-                            # "justify-content": "space-between",
-                            # "display": "flex",
-                        },
                     ),
                     # Existing components
                     # field object
@@ -116,15 +122,15 @@ if __name__ == "__main__":
             ),
             html.Div(
                 id="right-column",
-                className="five columns",
+                className="four columns",
                 children=[
+                    radar_plot,
+                    html.Button("Plot button", id="radar-button", n_clicks=0),
                     html.Button(
                         children="Select Players Off",
                         id="select-button",
                         n_clicks=0,
                     ),
-                    radar_plot,
-                    html.Button("Plot button", id="radar-button", n_clicks=0),
                 ],
             ),
         ],
@@ -161,21 +167,21 @@ if __name__ == "__main__":
         global selected_players
 
         if n_clicks % 2 == 1:
-            new_label = "Reset Players"
+            new_label = "Reset"
             player_select = True
             return new_label
         else:
             player_select = False
             selected_players = []
-            new_label = "Selection OFF"
+            new_label = "Select Players"
             return new_label
 
     @app.callback(
         Output(radar_plot.html_id, "figure"),
-        [Input("radar-button", "n_clicks")],
+        [Input("radar-button", "n_clicks"), Input("select-button", "n_clicks")],
     )
     # just to make it listen
-    def update_radar(button):
+    def update_radar(rad_button, select_but):
         return radar_plot.plot_radar(selected_players)
 
     app.run_server(debug=False, dev_tools_ui=False)

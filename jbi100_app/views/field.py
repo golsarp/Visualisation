@@ -20,7 +20,8 @@ class Field(html.Div):
         # Equivalent to `html.Div([...])`
         super().__init__(
             # className="graph_card",
-            children=[html.H6(name), dcc.Graph(id=self.html_id)],
+            # children=[html.H6(name), dcc.Graph(id=self.html_id)],
+            children=[dcc.Graph(id=self.html_id)],
         )
 
     def select_players(self, df, formation):
@@ -115,8 +116,8 @@ class Field(html.Div):
             color="position",
             symbol="position",
             hover_data=hover_columns,
-            height=600,  # Set the height of the figure
-            width=800,
+            height=400,  # Set the height of the figure
+            width=900,
         )
 
         # Add annotations (text on top of values)
