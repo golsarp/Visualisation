@@ -21,7 +21,8 @@ class Radar(html.Div):
         # Equivalent to `html.Div([...])`
         super().__init__(
             # className="graph_card",
-            children=[html.H6(name), dcc.Graph(id=self.html_id)],
+            # children=[html.H6(name), dcc.Graph(id=self.html_id)],
+            children=[dcc.Graph(id=self.html_id)],
         )
 
     def plot_radar(self, player_list):
@@ -80,7 +81,8 @@ class Radar(html.Div):
             title="Passes and Shots on Target(%)",
             height=300,
             width=400,
-            # margin=dict(l=100, r=100, t=100, b=100),
+            # margin=dict(l=0, r=0, t=0, b=0),
+            margin=dict(b=20),
             # legend=dict(x=0, y=1.02),  # Adjust x and y to position the legend on top
         )
         # self.fig.show()
