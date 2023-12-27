@@ -2,6 +2,7 @@ from jbi100_app.main import app
 from jbi100_app.views.scatterplot import Scatterplot
 from jbi100_app.views.field import Field
 from jbi100_app.views.radar_plot import Radar
+from jbi100_app.views.historic import Historic
 
 # import dash_core_components as dcc
 from dash import dcc
@@ -19,15 +20,17 @@ from dash.dependencies import Input, Output, State
 import pandas as pd
 
 if __name__ == "__main__":
-    # Field object
-    field = Field("Footbal Field", "x", "y")
     # clicked players, initially set to some players
     selected_players = ["Cristiano Ronaldo", "Aaron Ramsey", "Abdelhamid Sabiri"]
-
-    # If selection is on
+     # If selection is on
     player_select = False
+    # Field object
+    field = Field("Footbal Field", "x", "y")
     # radar plot
     radar_plot = Radar("Radar-plot", selected_players)
+    #historical plot
+    historic_plot = Historic("Historic-plot")
+   
     # first 5 teams initially
     # there are 32 teams, idk how to display them nicely
     df = pd.read_csv(player_poss_path)
@@ -131,10 +134,31 @@ if __name__ == "__main__":
                         id="select-button",
                         n_clicks=0,
                     ),
+                    historic_plot,
                 ],
             ),
         ],
     )
+
+    @app.callback(
+        Output("select-button", "children"),
+        [Input("select-button", "n_clicks")],
+    )
+    def update_output(n_clicks):
+        # global used for player selection
+        global player_select
+        global selected_players
+
+        if n_clicks % 2 == 1:
+            new_label = "Reset"
+            player_select = True
+            return new_label
+        else:
+            player_select = False
+            selected_players = []
+            new_label = "Select Players"
+            return new_label
+
 
     @app.callback(
         Output(field.html_id, "figure"),
@@ -158,30 +182,18 @@ if __name__ == "__main__":
         return field.positionPlayer(home, away, home_form, away_from)
 
     @app.callback(
-        Output("select-button", "children"),
-        [Input("select-button", "n_clicks")],
-    )
-    def update_output(n_clicks):
-        # global used for player selection
-        global player_select
-        global selected_players
-
-        if n_clicks % 2 == 1:
-            new_label = "Reset"
-            player_select = True
-            return new_label
-        else:
-            player_select = False
-            selected_players = []
-            new_label = "Select Players"
-            return new_label
-
-    @app.callback(
         Output(radar_plot.html_id, "figure"),
         [Input("radar-button", "n_clicks"), Input("select-button", "n_clicks")],
     )
     # just to make it listen
     def update_radar(rad_button, select_but):
         return radar_plot.plot_radar(selected_players)
+    
+    @app.callback(
+        Output(historic_plot.html_id, "figure"),
+        [Input("home-dropdown", "value"), Input("away-dropdown", "value")],
+    )
+    def update_historic(home, away):
+        return historic_plot.build_historic(home, away)
 
     app.run_server(debug=False, dev_tools_ui=False)
