@@ -65,17 +65,18 @@ class Bar(html.Div):
                     team_one_values[categories.index(feature)] = new_one_value
 
                 else:
-                    raise ValueError("Player not in teams")
+                    raise ValueError(f'{player} is not a player in one of the selected teams')
 
         feature_values = [team_zero_values, team_one_values]
 
-        fig = go.Figure()
+        self.fig = go.Figure()
 
         for team, f_value in zip(teams, feature_values):
-            fig.add_trace(go.Bar(name=team, x=categories, y=f_value))
+            self.fig.add_trace(go.Bar(name=team, x=categories, y=f_value))
 
-        fig.update_layout(barmode='group')
-        fig.show()
+        self.fig.update_layout(barmode='group')
+        # fig.show()
+        return self.fig
 
 
 def get_datasets():

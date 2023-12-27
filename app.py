@@ -23,16 +23,30 @@ if __name__ == "__main__":
     # Field object
     field = Field("Footbal Field", "x", "y")
     # clicked players, initially set to some players
-    selected_players = ["Cristiano Ronaldo", "Aaron Ramsey", "Abdelhamid Sabiri"]
+    selected_players = ["Cristiano Ronaldo", "Aaron Ramsey", "André Silva"]
+
+    # TODO: add update based on players on the field
+    demo_players = ["Aaron Mooy", "Aaron Ramsey", "Brennan Johnson"]
+
+    # selected teams
+    selected_teams = ["Australia", "Wales"]
+
+    # team features
+    # TODO: add dropdown selection
+    features = ["dribbles_completed_pct", "passes_pct_short", "shots_on_target_pct"]
 
     # If selection is on
     player_select = False
+
     # radar plot
     radar_plot = Radar("Radar-plot", selected_players)
     # first 5 teams initially
     # there are 32 teams, idk how to display them nicely
     df = pd.read_csv(player_poss_path)
     teams = df["team"].unique()[:5]
+
+    # team plot
+    team_plot = Bar("Team-plot", selected_players, selected_teams, features)
 
     # Define the layout
     app.layout = html.Div(
@@ -132,13 +146,9 @@ if __name__ == "__main__":
                         children="Select Players Off",
                         id="select-button",
                         n_clicks=0,
-
-                    # team plot
-
-
-
-
                     ),
+                    # team plot
+                    team_plot,
                 ],
             ),
         ],
@@ -186,10 +196,28 @@ if __name__ == "__main__":
 
     @app.callback(
         Output(radar_plot.html_id, "figure"),
-        [Input("radar-button", "n_clicks"), Input("select-button", "n_clicks")],
+        [Input("radar-button", "n_clicks"),
+         Input("select-button", "n_clicks"),],
     )
     # just to make it listen
     def update_radar(rad_button, select_but):
         return radar_plot.plot_radar(selected_players)
+
+
+    @app.callback(
+        Output(team_plot.html_id, "figure"),
+        [Input("home-dropdown", "value"),   # home team
+         Input("away-dropdown", "value"),],  # away team
+    )
+    def update_team_plot(home_team, away_team):
+
+        # print(home_team, away_team)
+
+        # print(features, selected_teams)
+        # print(demo_players)
+
+        selected_teams = [home_team, away_team]
+
+        return team_plot.plot_bar(features, selected_teams, demo_players)
 
     app.run_server(debug=False, dev_tools_ui=False)
