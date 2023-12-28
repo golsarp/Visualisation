@@ -134,4 +134,4 @@ class Field(html.Div):
 
         self.fig.update_traces(marker_size=10)
 
-        return self.fig
+        return self.fig, df_concat

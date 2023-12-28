@@ -2,6 +2,8 @@ from jbi100_app.main import app
 from jbi100_app.views.scatterplot import Scatterplot
 from jbi100_app.views.field import Field
 from jbi100_app.views.radar_plot import Radar
+from jbi100_app.views.team_plot import Bar
+import time
 from jbi100_app.views.historic import Historic
 
 # import dash_core_components as dcc
@@ -22,10 +24,22 @@ import pandas as pd
 if __name__ == "__main__":
     # clicked players, initially set to some players
     selected_players = ["Cristiano Ronaldo", "Aaron Ramsey", "Abdelhamid Sabiri"]
-     # If selection is on
+
+    all_players = ["Aaron Mooy", "Aaron Ramsey", "Brennan Johnson"]
+
+    # selected teams
+    selected_teams = ["Australia", "Wales"]
+
+    # team features
+    # TODO: add dropdown selection
+    features = ["dribbles_completed_pct", "passes_pct_short", "shots_on_target_pct"]
+
+    # If selection is on
     player_select = False
+
     # Field object
     field = Field("Footbal Field", "x", "y")
+
     # radar plot
     radar_plot = Radar("Radar-plot", selected_players)
     #historical plot
@@ -35,6 +49,9 @@ if __name__ == "__main__":
     # there are 32 teams, idk how to display them nicely
     df = pd.read_csv(player_poss_path)
     teams = df["team"].unique()[:5]
+
+    # team plot
+    team_plot = Bar("Team-plot", selected_players, selected_teams, features)
 
     # Define the layout
     app.layout = html.Div(
@@ -127,6 +144,7 @@ if __name__ == "__main__":
                 id="right-column",
                 className="four columns",
                 children=[
+                    # radar plot
                     radar_plot,
                     html.Button("Plot button", id="radar-button", n_clicks=0),
                     html.Button(
@@ -134,6 +152,8 @@ if __name__ == "__main__":
                         id="select-button",
                         n_clicks=0,
                     ),
+                    # team plot
+                    team_plot,
                     historic_plot,
                 ],
             ),
@@ -178,12 +198,19 @@ if __name__ == "__main__":
             clicked_point_info = click_data["points"][0]
             clicked_name = clicked_point_info["customdata"][0]
             selected_players.append(clicked_name)
+
+        player_pos, player_df = field.positionPlayer(home, away, home_form, away_from)
+
+        global all_players
+        all_players = player_df["player"].unique()
+
         # update field
-        return field.positionPlayer(home, away, home_form, away_from)
+        return player_pos
 
     @app.callback(
         Output(radar_plot.html_id, "figure"),
-        [Input("radar-button", "n_clicks"), Input("select-button", "n_clicks")],
+        [Input("radar-button", "n_clicks"),
+         Input("select-button", "n_clicks"),],
     )
     # just to make it listen
     def update_radar(rad_button, select_but):
@@ -195,5 +222,20 @@ if __name__ == "__main__":
     )
     def update_historic(home, away):
         return historic_plot.build_historic(home, away)
+
+
+    @app.callback(
+        Output(team_plot.html_id, "figure"),
+        [Input("home-dropdown", "value"),   # home team
+         Input("away-dropdown", "value"),],  # away team
+    )
+    def update_team_plot(home_team, away_team):
+
+        selected_teams = [home_team, away_team]
+
+        # dealy needed in order to ensure that the filed is updated
+        time.sleep(1)
+
+        return team_plot.plot_bar(features, selected_teams, all_players)
 
     app.run_server(debug=False, dev_tools_ui=False)
