@@ -3,6 +3,7 @@ from jbi100_app.views.scatterplot import Scatterplot
 from jbi100_app.views.field import Field
 from jbi100_app.views.radar_plot import Radar
 from jbi100_app.views.team_plot import Bar
+import time
 
 # import dash_core_components as dcc
 from dash import dcc
@@ -25,8 +26,7 @@ if __name__ == "__main__":
     # clicked players, initially set to some players
     selected_players = ["Cristiano Ronaldo", "Aaron Ramsey", "André Silva"]
 
-    # TODO: add update based on players on the field
-    demo_players = ["Aaron Mooy", "Aaron Ramsey", "Brennan Johnson"]
+    all_players = ["Aaron Mooy", "Aaron Ramsey", "Brennan Johnson"]
 
     # selected teams
     selected_teams = ["Australia", "Wales"]
@@ -172,8 +172,14 @@ if __name__ == "__main__":
             clicked_point_info = click_data["points"][0]
             clicked_name = clicked_point_info["customdata"][0]
             selected_players.append(clicked_name)
+
+        player_pos, player_df = field.positionPlayer(home, away, home_form, away_from)
+
+        global all_players
+        all_players = player_df["player"].unique()
+
         # update field
-        return field.positionPlayer(home, away, home_form, away_from)
+        return player_pos
 
     @app.callback(
         Output("select-button", "children"),
@@ -211,13 +217,11 @@ if __name__ == "__main__":
     )
     def update_team_plot(home_team, away_team):
 
-        # print(home_team, away_team)
-
-        # print(features, selected_teams)
-        # print(demo_players)
-
         selected_teams = [home_team, away_team]
 
-        return team_plot.plot_bar(features, selected_teams, demo_players)
+        # dealy needed in order to ensure that the filed is updated
+        time.sleep(1)
+
+        return team_plot.plot_bar(features, selected_teams, all_players)
 
     app.run_server(debug=False, dev_tools_ui=False)

@@ -64,8 +64,8 @@ class Bar(html.Div):
 
                     team_one_values[categories.index(feature)] = new_one_value
 
-                else:
-                    raise ValueError(f'{player} is not a player in one of the selected teams')
+                # else:
+                #     raise ValueError(f'{player} is not a player in one of the selected teams')
 
         feature_values = [team_zero_values, team_one_values]
 
