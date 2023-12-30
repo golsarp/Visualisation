@@ -3,6 +3,8 @@ from jbi100_app.views.scatterplot import Scatterplot
 from jbi100_app.views.field import Field
 from jbi100_app.views.radar_plot import Radar
 from jbi100_app.views.team_plot import Bar
+from jbi100_app.views.table import Table
+
 import time
 from jbi100_app.views.historic import Historic
 
@@ -42,9 +44,14 @@ if __name__ == "__main__":
 
     # radar plot
     radar_plot = Radar("Radar-plot", selected_players)
-    #historical plot
+    # historical plot
     historic_plot = Historic("Historic-plot")
-   
+
+    # home bench
+    home_table = Table("home-table")
+    # away bench
+    away_table = Table("away-table")
+
     # first 5 teams initially
     # there are 32 teams, idk how to display them nicely
     df = pd.read_csv(player_poss_path)
@@ -179,7 +186,6 @@ if __name__ == "__main__":
             new_label = "Select Players"
             return new_label
 
-
     @app.callback(
         Output(field.html_id, "figure"),
         [
@@ -209,13 +215,15 @@ if __name__ == "__main__":
 
     @app.callback(
         Output(radar_plot.html_id, "figure"),
-        [Input("radar-button", "n_clicks"),
-         Input("select-button", "n_clicks"),],
+        [
+            Input("radar-button", "n_clicks"),
+            Input("select-button", "n_clicks"),
+        ],
     )
     # just to make it listen
     def update_radar(rad_button, select_but):
         return radar_plot.plot_radar(selected_players)
-    
+
     @app.callback(
         Output(historic_plot.html_id, "figure"),
         [Input("home-dropdown", "value"), Input("away-dropdown", "value")],
@@ -223,14 +231,14 @@ if __name__ == "__main__":
     def update_historic(home, away):
         return historic_plot.build_historic(home, away)
 
-
     @app.callback(
         Output(team_plot.html_id, "figure"),
-        [Input("home-dropdown", "value"),   # home team
-         Input("away-dropdown", "value"),],  # away team
+        [
+            Input("home-dropdown", "value"),  # home team
+            Input("away-dropdown", "value"),
+        ],  # away team
     )
     def update_team_plot(home_team, away_team):
-
         selected_teams = [home_team, away_team]
 
         # dealy needed in order to ensure that the filed is updated
