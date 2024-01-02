@@ -74,7 +74,7 @@ class Bar(html.Div):
         for team, f_value in zip(teams, feature_values):
             self.fig.add_trace(go.Bar(name=team, x=categories, y=f_value))
 
-        self.fig.update_layout(barmode='group')
+        self.fig.update_layout(barmode='group', title_text='Team Comparison')
         # fig.show()
         return self.fig
 
