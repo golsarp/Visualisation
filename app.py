@@ -31,7 +31,6 @@ if __name__ == "__main__":
     selected_teams = ["Australia", "Wales"]
 
     # team features
-    # TODO: add dropdown selection
     features = ["dribbles_completed_pct", "passes_pct_short", "shots_on_target_pct"]
 
     # If selection is on
@@ -154,6 +153,12 @@ if __name__ == "__main__":
                     ),
                     # team plot
                     team_plot,
+                    # team plot dropdown feature selector
+                    dcc.Dropdown(['dribbles_completed_pct', 'passes_pct_short', 'passes_pct_medium',
+                                  'passes_pct_long', 'shots_on_target_pct'],
+                                 ['dribbles_completed_pct', 'passes_pct_short', 'shots_on_target_pct'],
+                                 multi=True, id="team-plot-dropdown"),
+                    # historic plot
                     historic_plot,
                 ],
             ),
@@ -227,13 +232,14 @@ if __name__ == "__main__":
     @app.callback(
         Output(team_plot.html_id, "figure"),
         [Input("home-dropdown", "value"),   # home team
-         Input("away-dropdown", "value"),],  # away team
+         Input("away-dropdown", "value"),  # away team
+         Input("team-plot-dropdown", "value")],  # feature selection
     )
-    def update_team_plot(home_team, away_team):
+    def update_team_plot(home_team, away_team, features):
 
         selected_teams = [home_team, away_team]
 
-        # dealy needed in order to ensure that the filed is updated
+        # delay needed in order to ensure that the filed is updated
         time.sleep(1)
 
         return team_plot.plot_bar(features, selected_teams, all_players)
