@@ -9,7 +9,7 @@ import time
 from jbi100_app.views.historic import Historic
 
 # import dash_core_components as dcc
-from dash import dcc
+from dash import dcc, dash_table
 from jbi100_app.config import (
     position_mapping_home,
     position_mapping_away,
@@ -47,10 +47,17 @@ if __name__ == "__main__":
     # historical plot
     historic_plot = Historic("Historic-plot")
 
-    # home bench
+    # # home bench
+    # df_home = field.process_df(selected_teams[0], True)
+    # # Bench players also extracted
+    # df_home_field, df_home_bench = field.select_players(df_home, formation[0])
+    # home_bench = df_home_bench[["player", "position", "birth_year"]]
+    home_bench = None
+
     home_table = Table("home-table")
-    # away bench
+
     away_table = Table("away-table")
+    home_bench = None
 
     # first 5 teams initially
     # there are 32 teams, idk how to display them nicely
@@ -145,6 +152,38 @@ if __name__ == "__main__":
                     # Existing components
                     # field object
                     field,
+                    html.Div(
+                        [
+                            html.Div(
+                                [
+                                    html.H4("Home Bench"),
+                                    html.P(id="table_out_home"),
+                                    html.P(id="table_out_home_high"),
+                                    # home_table,
+                                ],
+                                style={
+                                    "display": "inline-block",
+                                    "width": "30%",
+                                    "margin-right": "80px",  # Add margin to the right
+                                },
+                            ),
+                            html.Div(
+                                [
+                                    html.H4("Away Bench"),
+                                    html.P(id="table_out_away"),
+                                    html.P(id="table_out_away_high"),
+                                    # home_table,
+                                ],
+                                style={
+                                    "display": "inline-block",
+                                    "width": "30%",
+                                },
+                            ),
+                        ],
+                        style={
+                            "display": "flex",
+                        },
+                    ),
                 ],
             ),
             html.Div(
@@ -205,11 +244,18 @@ if __name__ == "__main__":
             clicked_name = clicked_point_info["customdata"][0]
             selected_players.append(clicked_name)
 
-        player_pos, player_df = field.positionPlayer(home, away, home_form, away_from)
+        player_pos, player_df, home_t, away_t = field.positionPlayer(
+            home, away, home_form, away_from
+        )
 
         global all_players
         all_players = player_df["player"].unique()
-
+        # for tables
+        global home_bench
+        home_bench = home_t
+        global away_bench
+        away_bench = away_t
+        # print(home_bench)
         # update field
         return player_pos
 
@@ -245,5 +291,56 @@ if __name__ == "__main__":
         time.sleep(1)
 
         return team_plot.plot_bar(features, selected_teams, all_players)
+
+    @app.callback(
+        Output("table_out_home", "children"),
+        [
+            Input("home-dropdown", "value"),
+        ],
+    )
+    def update_table(home_drop):
+        # dealy needed in order to ensure that the filed is updated
+        time.sleep(1)
+        return home_table.plot_table(home_bench)
+
+    @app.callback(
+        Output("table_out_home_high", "children"),
+        [
+            Input(home_table.html_id, "active_cell"),
+        ],
+    )
+    def update_graph_home(active_cell):
+        # print("triggereed")
+        if active_cell:
+            # print("inside")
+            cell_data = home_bench.iloc[active_cell["row"]][active_cell["column_id"]]
+            return f'Data: "{cell_data}" from table cell: {active_cell}'
+        return "Click the Players to Swap"
+
+    # **********************************
+    @app.callback(
+        Output("table_out_away", "children"),
+        [
+            Input("away-dropdown", "value"),
+        ],
+    )
+    def update_table(away_drop):
+        # dealy needed in order to ensure that the filed is updated
+        time.sleep(1)
+        return away_table.plot_table(away_bench)
+
+    @app.callback(
+        Output("table_out_away_high", "children"),
+        [
+            Input(away_table.html_id, "active_cell"),
+        ],
+    )
+    def update_graph_away(active_cell):
+        # print("triggereed")
+        if active_cell:
+            # print("inside")
+            cell_data = away_bench.iloc[active_cell["row"]][active_cell["column_id"]]
+            return f'Data: "{cell_data}" from table cell: {active_cell}'
+        return "Click the Players to Swap"
 
     app.run_server(debug=False, dev_tools_ui=False)

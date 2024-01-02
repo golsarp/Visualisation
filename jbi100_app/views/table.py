@@ -13,11 +13,15 @@ class Table(html.Div):
         super().__init__(
             # className="graph_card",
             # children=[html.H6(name), dcc.Graph(id=self.html_id)],
-            children=[dcc.Graph(id=self.html_id)],
+            children=[
+                dash_table.DataTable(
+                    id=self.html_id,
+                )
+            ],
         )
 
     def plot_table(self, df):
-        table = (
+        return (
             dash_table.DataTable(
                 id=self.html_id,
                 columns=[{"name": i, "id": i} for i in df.columns],
@@ -42,4 +46,3 @@ class Table(html.Div):
                 ],
             ),
         )
-        return table

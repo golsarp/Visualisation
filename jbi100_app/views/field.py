@@ -79,6 +79,9 @@ class Field(html.Div):
         df_home_field, df_home_bench = self.select_players(df_home, home_form)
         df_away_field, df_away_bench = self.select_players(df_away, away_form)
 
+        home_table = df_home_bench[["player", "position", "birth_year"]]
+        away_table = df_away_bench[["player", "position", "birth_year"]]
+
         max_val_home = df_home_field["position_y"].max()
         max_val_away = df_away_field["position_y"].max()
         max_val = max(max_val_home, max_val_away)
@@ -134,4 +137,4 @@ class Field(html.Div):
 
         self.fig.update_traces(marker_size=10)
 
-        return self.fig, df_concat
+        return self.fig, df_concat, home_table, away_table
