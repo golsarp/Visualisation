@@ -1,12 +1,13 @@
 import numpy as np
 from dash import dcc, html
-import plotly.graph_objects as go
 import pandas as pd
 import os
+import plotly.express as px
 
 
 class Bar(html.Div):
     def __init__(self, name, feature_list, teams_list, feature_values):
+        self.fig = None
         self.html_id = name
         self.features = feature_list
         self.teams = teams_list
@@ -16,22 +17,19 @@ class Bar(html.Div):
             children=[dcc.Graph(id=self.html_id)],
         )
 
-    def plot_bar(self, categories, teams, names):
+    def plot_bar(self, categories, names):
 
         df_poss, df_shoot, df_pass = get_datasets()
 
-        nr_features = len(categories)
-
-        team_zero_values = [0] * nr_features
-        team_one_values = [0] * nr_features
-
         attributes = {
-            "dribbles_completed_pct": df_poss,
-            "passes_pct_short": df_pass,
-            "passes_pct_long": df_pass,
-            "passes_pct_medium": df_pass,
-            "shots_on_target_pct": df_shoot,
+            "dribbles_completed": df_poss,
+            "passes_short": df_pass,
+            "passes_long": df_pass,
+            "passes_medium": df_pass,
+            "shots_on_target": df_shoot,
         }
+
+        plot_df = pd.DataFrame(columns=['name', 'team', 'feature', 'value'])
 
         for player in names:
 
@@ -48,34 +46,18 @@ class Bar(html.Div):
                 if np.isnan(player_value):
                     player_value = 0
 
-                if player_team in teams[0]:
+                new_row = {'name': player, 'team': player_team, 'feature': feature, 'value': player_value}
 
-                    temp_zero_value = team_zero_values[categories.index(feature)]
+                plot_df = pd.concat([plot_df, pd.DataFrame(new_row, index=[0])], ignore_index=True)
 
-                    new_zero_value = temp_zero_value + player_value
+        sorted_plot_df = plot_df.sort_values(['feature', 'value'], ascending=[True, False])
 
-                    team_zero_values[categories.index(feature)] = new_zero_value
+        self.fig = px.bar(sorted_plot_df, x='feature', y='value', color='team', barmode='group',
+                          hover_name='name', hover_data={'team': False, 'feature': False, 'value': True}
+                          , title='Team plot')
 
-                elif player_team in teams[1]:
+        self.fig.update_layout(legend={"title": "Teams"}, xaxis_title=None, yaxis_title='Nr of times')
 
-                    temp_one_value = team_one_values[categories.index(feature)]
-
-                    new_one_value = temp_one_value + player_value
-
-                    team_one_values[categories.index(feature)] = new_one_value
-
-                # else:
-                #     raise ValueError(f'{player} is not a player in one of the selected teams')
-
-        feature_values = [team_zero_values, team_one_values]
-
-        self.fig = go.Figure()
-
-        for team, f_value in zip(teams, feature_values):
-            self.fig.add_trace(go.Bar(name=team, x=categories, y=f_value))
-
-        self.fig.update_layout(barmode='group', title_text='Team Comparison')
-        # fig.show()
         return self.fig
 
 
@@ -94,12 +76,3 @@ def get_datasets():
     df_pass = pd.read_csv(path_pass)
 
     return df_poss, df_shoot, df_pass
-
-
-if __name__ == "__main__":
-    # Usage:
-    features = ["dribbles_completed_pct", "passes_pct_short", "shots_on_target_pct"]
-    compared_teams = ['Portugal', 'Wales']
-    player_names = ["Cristiano Ronaldo", "Aaron Ramsey", "André Silva"]
-
-    Bar.plot_bar("plot", features, compared_teams, player_names)
