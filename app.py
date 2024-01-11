@@ -222,6 +222,7 @@ if __name__ == "__main__":
         else:
             player_select = False
             selected_players = []
+            print("emptied", selected_players)
             new_label = "Select Players"
             return new_label
 
@@ -234,18 +235,29 @@ if __name__ == "__main__":
             Input("away-dropdown", "value"),
             Input("home-formation", "value"),
             Input("away-formation", "value"),
+            Input("select-button", "n_clicks"),
         ],
     )
-    def update_field(select, click_data, home, away, home_form, away_from):
+    def update_field(
+        select, click_data, home, away, home_form, away_from, select_button
+    ):
         # get selected players
+
         if click_data is not None and player_select:
             # Extract information about the clicked point
             clicked_point_info = click_data["points"][0]
             clicked_name = clicked_point_info["customdata"][0]
-            selected_players.append(clicked_name)
+            if clicked_name in selected_players:
+                selected_players.remove(clicked_name)
+            else:
+                selected_players.append(clicked_name)
+
+            # if clicked_name not in selected_players:
+            #     selected_players.append(clicked_name)
+            # print(selected_players)
 
         player_pos, player_df, home_t, away_t = field.positionPlayer(
-            home, away, home_form, away_from
+            home, away, home_form, away_from, selected_players=selected_players
         )
 
         global all_players
@@ -268,6 +280,7 @@ if __name__ == "__main__":
     )
     # just to make it listen
     def update_radar(rad_button, select_but):
+        print(selected_players)
         return radar_plot.plot_radar(selected_players)
 
     @app.callback(
@@ -292,13 +305,15 @@ if __name__ == "__main__":
 
         return team_plot.plot_bar(features, selected_teams, all_players)
 
+    # bench for home
     @app.callback(
         Output("table_out_home", "children"),
         [
             Input("home-dropdown", "value"),
+            Input("home-formation", "value"),
         ],
     )
-    def update_table(home_drop):
+    def update_table(home_drop, home_form):
         # dealy needed in order to ensure that the filed is updated
         time.sleep(1)
         return home_table.plot_table(home_bench)
@@ -318,13 +333,15 @@ if __name__ == "__main__":
         return "Click the Players to Swap"
 
     # **********************************
+    # bench for away
     @app.callback(
         Output("table_out_away", "children"),
         [
             Input("away-dropdown", "value"),
+            Input("away-formation", "value"),
         ],
     )
-    def update_table(away_drop):
+    def update_table(away_drop, away_from):
         # dealy needed in order to ensure that the filed is updated
         time.sleep(1)
         return away_table.plot_table(away_bench)

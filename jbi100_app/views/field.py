@@ -8,6 +8,7 @@ from jbi100_app.config import (
 )
 
 import pandas as pd
+import time
 
 
 class Field(html.Div):
@@ -72,7 +73,7 @@ class Field(html.Div):
 
         return group["corrected_y"]
 
-    def positionPlayer(self, home, away, home_form, away_form):
+    def positionPlayer(self, home, away, home_form, away_form, selected_players):
         df_home = self.process_df(home, True)
         df_away = self.process_df(away, False)
         # Bench players also extracted
@@ -99,42 +100,94 @@ class Field(html.Div):
         )
 
         df_concat = pd.concat([df_home_field, df_away_field], ignore_index=True)
+        # df_concat["selected"] = df_concat["player"].isin(selected_players)
+        # Apply conditions directly to create the 'color' column
+        df_concat["color"] = df_concat.apply(
+            lambda row: "Yellow"
+            if row["player"] in selected_players
+            else "Blue"
+            if row["team"] == home
+            else "Red"
+            if row["team"] == away
+            else "Other",
+            axis=1,
+        )
 
+        # print(selected_players)
+        # print(df_concat.columns)
+        # print(df_concat)
+        # time.sleep(0.1)
+        # player age minutes_90s miscontrols
+        # print(px.colors.qualitative.Set1)
         hover_columns = [
             "player",
             # "position",
             # "team",
             "age",
-            "birth_year",
+            "minutes_90s",
+            "miscontrols"
             # "dispossessed",
             # "passes_received",
             # "progressive_passes_received",
         ]
-
+        color_mapping = {"Green": "green", "Blue": "blue", "Red": "red"}
         self.fig = px.scatter(
             df_concat,
             y="corrected_y",
-            # y="position_y",
             x="position_x",
-            color="position",
+            # color="team",
+            color="color",
             symbol="position",
             hover_data=hover_columns,
             height=400,  # Set the height of the figure
             width=900,
+            color_discrete_map=color_mapping,
         )
+        self.fig.update_layout(
+            xaxis_title="",
+            yaxis_title="",
+            xaxis=dict(linecolor="red")
+            # plot_bgcolor="rgb(0, 128, 0)",
+        )
+        self.fig.update_xaxes(showticklabels=False)
+        self.fig.update_yaxes(showticklabels=False)
+        self.fig.update_traces(line_color="black")
+        self.fig.update_xaxes(showgrid=True, gridcolor="red")
+        self.fig.update_yaxes(showgrid=True, gridcolor="red")
+
+        # # Update hover template to exclude unwanted columns
+        # hover_template = "<br>".join(
+        #     [
+        #         "{}: %{{customdata[{}]}}".format(col, i)
+        #         for i, col in enumerate(hover_columns)
+        #     ]
+        # )
+
+        # self.fig.update_traces(
+        #     hovertemplate=hover_template,
+        #     customdata=df_concat[hover_columns].values.tolist(),
+        # )
 
         # Add annotations (text on top of values)
         for i, row in df_concat.iterrows():
+            player_name_parts = row["player"].split()  # Split the full name into parts
+
+            # Use only the first part of the name
+            last_name = player_name_parts[1] if player_name_parts else ""
             self.fig.add_annotation(
                 x=row["position_x"],  # x-coordinate of the annotation
                 y=row["corrected_y"],
                 # y=row["position_y"],  # y-coordinate of the annotation
                 # name=row["player"],
-                text=str(row["player"]),  # text to display
-                ax=0,
-                ay=-40,
+                text=str(last_name),  # text to display
+                xshift=0,
+                yshift=+20,
+                showarrow=False,
+                # showarrow=False,
+                # ax=0,
+                # ay=-30,
             )
 
-        self.fig.update_traces(marker_size=10)
+        self.fig.update_traces(marker_size=15)
 
         return self.fig, df_concat, home_table, away_table
