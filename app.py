@@ -233,15 +233,41 @@ if __name__ == "__main__":
         Output(team_plot.html_id, "figure"),
         [Input("home-dropdown", "value"),   # home team
          Input("away-dropdown", "value"),  # away team
-         Input("team-plot-dropdown", "value")],  # feature selection
+         Input("team-plot-dropdown", "value"),  # feature selection
+         Input(team_plot.html_id, 'clickData')],  # click data
+         State(team_plot.html_id, 'figure'),
+        prevent_initial_call=True
     )
-    def update_team_plot(home_team, away_team, features):
+    def update_team_plot(home_team, away_team, features, click_data, current_figure):
 
         selected_teams = [home_team, away_team]
 
         # delay needed in order to ensure that the filed is updated
         time.sleep(1)
 
-        return team_plot.plot_bar(features, all_players)
+        updated_figure = team_plot.plot_bar(features, all_players)
+
+        # if a segment of the bar chart was clicked
+        if click_data is not None:
+            # which point has been clicked?
+            clicked_point = click_data["points"][0]["pointIndex"]
+            clicked_trace = click_data["points"][0]["curveNumber"]
+
+            # extract traces
+            traces = updated_figure['data']
+
+            # loop over all traces
+            for idx, trace in enumerate(traces):
+                # update selection state of the clicked point in the trace dict
+
+                if idx == clicked_trace:
+                    trace.update({'selectedpoints': [clicked_point]})
+                else:
+                    trace.update({'selectedpoints': []})
+
+                    # update figure dict with updated trace dict
+                updated_figure['data'][idx].update(trace)
+
+        return updated_figure
 
     app.run_server(debug=False, dev_tools_ui=False)
