@@ -269,15 +269,15 @@ if __name__ == "__main__":
     )
     def update_team_plot(home_team, away_team, features, stored_data, current_figure):
 
-
         # delay needed in order to ensure that the filed is updated
         time.sleep(1)
 
         # update the figure with the new data
         updated_figure = team_plot.plot_bar(features, all_players)
 
-        # if stored_data is not initialized yet, initialize it with all points selected
-        if not stored_data:
+        # if stored_data is not initialized yet, initialize it with all points selected.
+        # If stored data is empty, initialize it with all points selected
+        if not stored_data or (len(stored_data) == 1 and not next(iter(stored_data.values()))):
             stored_data = {str(i): list(range(len(trace['y']))) for i, trace in enumerate(updated_figure['data'])}
 
         # extract traces
