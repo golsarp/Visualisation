@@ -159,11 +159,8 @@ if __name__ == "__main__":
                                   'passes_long', 'shots_on_target'],
                                  ['dribbles_completed', 'shots_on_target'],
                                  multi=True, id="team-plot-dropdown"),
-                    html.Button('Unselect All', id='unselect-button', n_clicks=0),
                     # historic plot
                     historic_plot,
-                    # store team plot click data
-                    # dcc.Store(id='store', data={}),
                 ],
             ),
         ],
@@ -245,15 +242,17 @@ if __name__ == "__main__":
 
         # which point has been clicked?
         clicked_point = click_data["points"][0]["pointIndex"]
-        clicked_trace = click_data["points"][0]["curveNumber"]
+        clicked_trace = str(click_data["points"][0]["curveNumber"])
+
+        # if the clicked trace is not in the stored data, add it
+        if clicked_trace not in stored_data:
+            stored_data[clicked_trace] = []
 
         # if the clicked point is already selected, deselect it
-        if clicked_trace in stored_data and clicked_point in stored_data[clicked_trace]:
+        if clicked_point in stored_data[clicked_trace]:
             stored_data[clicked_trace].remove(clicked_point)
         # otherwise, select the clicked point
         else:
-            if clicked_trace not in stored_data:
-                stored_data[clicked_trace] = []
             stored_data[clicked_trace].append(clicked_point)
 
         return stored_data
