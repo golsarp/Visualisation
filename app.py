@@ -268,7 +268,7 @@ if __name__ == "__main__":
         prevent_initial_call=True
     )
     def update_team_plot(home_team, away_team, features, stored_data, current_figure):
-        selected_teams = [home_team, away_team]
+
 
         # delay needed in order to ensure that the filed is updated
         time.sleep(1)
