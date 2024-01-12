@@ -153,13 +153,17 @@ if __name__ == "__main__":
                     ),
                     # team plot
                     team_plot,
+                    dcc.Store(id='team-plot-store', data={}),
                     # team plot dropdown feature selector
                     dcc.Dropdown(['dribbles_completed', 'passes_short', 'passes_medium',
                                   'passes_long', 'shots_on_target'],
                                  ['dribbles_completed', 'shots_on_target'],
                                  multi=True, id="team-plot-dropdown"),
+                    html.Button('Unselect All', id='unselect-button', n_clicks=0),
                     # historic plot
                     historic_plot,
+                    # store team plot click data
+                    # dcc.Store(id='store', data={}),
                 ],
             ),
         ],
@@ -228,45 +232,64 @@ if __name__ == "__main__":
     def update_historic(home, away):
         return historic_plot.build_historic(home, away)
 
-
     @app.callback(
-        Output(team_plot.html_id, "figure"),
-        [Input("home-dropdown", "value"),   # home team
-         Input("away-dropdown", "value"),  # away team
-         Input("team-plot-dropdown", "value"),  # feature selection
-         Input(team_plot.html_id, 'clickData')],  # click data
-         State(team_plot.html_id, 'figure'),
+        Output('team-plot-store', 'data'),
+        Input(team_plot.html_id, 'clickData'),
+        State('team-plot-store', 'data'),
         prevent_initial_call=True
     )
-    def update_team_plot(home_team, away_team, features, click_data, current_figure):
+    def store_click_data(click_data, stored_data):
+        # if no point has been clicked yet, initialize an empty dictionary
+        if click_data is None:
+            return {}
 
+        # which point has been clicked?
+        clicked_point = click_data["points"][0]["pointIndex"]
+        clicked_trace = click_data["points"][0]["curveNumber"]
+
+        # if the clicked point is already selected, deselect it
+        if clicked_trace in stored_data and clicked_point in stored_data[clicked_trace]:
+            stored_data[clicked_trace].remove(clicked_point)
+        # otherwise, select the clicked point
+        else:
+            if clicked_trace not in stored_data:
+                stored_data[clicked_trace] = []
+            stored_data[clicked_trace].append(clicked_point)
+
+        return stored_data
+
+
+    @app.callback(
+        Output(team_plot.html_id, 'figure'),
+        [Input("home-dropdown", "value"),  # home team
+         Input("away-dropdown", "value"),  # away team
+         Input("team-plot-dropdown", "value"),  # feature selection
+         Input('team-plot-store', 'data')],  # click data
+        State(team_plot.html_id, 'figure'),
+        prevent_initial_call=True
+    )
+    def update_team_plot(home_team, away_team, features, stored_data, current_figure):
         selected_teams = [home_team, away_team]
 
         # delay needed in order to ensure that the filed is updated
         time.sleep(1)
 
+        # update the figure with the new data
         updated_figure = team_plot.plot_bar(features, all_players)
 
-        # if a segment of the bar chart was clicked
-        if click_data is not None:
-            # which point has been clicked?
-            clicked_point = click_data["points"][0]["pointIndex"]
-            clicked_trace = click_data["points"][0]["curveNumber"]
+        # extract traces
+        traces = updated_figure['data']
 
-            # extract traces
-            traces = updated_figure['data']
+        # loop over all traces
+        for idx, trace in enumerate(traces):
+            # update selection state of the clicked point in the trace dict
+            if str(idx) in stored_data:
+                trace.update({'selectedpoints': stored_data[str(idx)]})
+            else:
+                trace.update({'selectedpoints': []})
 
-            # loop over all traces
-            for idx, trace in enumerate(traces):
-                # update selection state of the clicked point in the trace dict
-
-                if idx == clicked_trace:
-                    trace.update({'selectedpoints': [clicked_point]})
-                else:
-                    trace.update({'selectedpoints': []})
-
-                    # update figure dict with updated trace dict
-                updated_figure['data'][idx].update(trace)
+            # update figure dict with updated trace dict
+            updated_figure['data'][idx].update(trace)
 
         return updated_figure
 
