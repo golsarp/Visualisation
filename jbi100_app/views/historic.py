@@ -8,8 +8,6 @@ import pandas as pd
 file_path = "FIFA DataSet/Data/FIFA World Cup Historic/matches_1930_2022.csv"
 
 
-
-
 # app.layout = html.Div([
 #     html.Label('Select Home Team'),
 #     dcc.Dropdown(
@@ -34,6 +32,7 @@ file_path = "FIFA DataSet/Data/FIFA World Cup Historic/matches_1930_2022.csv"
 #     ]
 # )
 
+
 class Historic(html.Div):
     def __init__(self, name):
         self.html_id = name
@@ -45,40 +44,48 @@ class Historic(html.Div):
         df = pd.read_csv(file_path)
 
         # Get unique team names
-        teams = pd.concat([df['home_team'], df['away_team']]).unique()
-        team_options = [{'label': team, 'value': team} for team in teams]
-        filtered_home_df = df[df['home_team'] == home_team].copy()
-        filtered_away_df = df[df['away_team'] == away_team].copy()
+        teams = pd.concat([df["home_team"], df["away_team"]]).unique()
+        team_options = [{"label": team, "value": team} for team in teams]
+        filtered_home_df = df[df["home_team"] == home_team].copy()
+        filtered_away_df = df[df["away_team"] == away_team].copy()
 
         # Create a new figure
         self.figure = go.Figure()
 
         # Add a bar for the home team
         # Add a line for the home team
-        self.figure.add_trace(go.Scatter(
-            x=filtered_home_df['Date'],  # Replace 'Year' with the appropriate column from your DataFrame
-            y=filtered_home_df['home_score'],  # Replace 'home_score' with the appropriate column from your DataFrame
-            mode='lines+markers',
-            name=home_team
-        ))
+        self.figure.add_trace(
+            go.Scatter(
+                x=filtered_home_df[
+                    "Date"
+                ],  # Replace 'Year' with the appropriate column from your DataFrame
+                y=filtered_home_df[
+                    "home_score"
+                ],  # Replace 'home_score' with the appropriate column from your DataFrame
+                mode="lines+markers",
+                name=home_team,
+            )
+        )
 
         # Add a line for the away team
-        self.figure.add_trace(go.Scatter(
-            x=filtered_away_df['Date'],  # Replace 'Year' with the appropriate column from your DataFrame
-            y=filtered_away_df['away_score'],  # Replace 'away_score' with the appropriate column from your DataFrame
-            mode='lines+markers',
-            name=away_team
-        ))
+        self.figure.add_trace(
+            go.Scatter(
+                x=filtered_away_df[
+                    "Date"
+                ],  # Replace 'Year' with the appropriate column from your DataFrame
+                y=filtered_away_df[
+                    "away_score"
+                ],  # Replace 'away_score' with the appropriate column from your DataFrame
+                mode="lines+markers",
+                name=away_team,
+            )
+        )
         # Add range slider
         self.figure.update_layout(
-            title='Historic Match Scores',
+            title="Historic Match Scores",
             width=400,
             height=400,
-            xaxis=dict(
-                rangeslider=dict(
-                    visible=True
-                ),
-                type="date"
-            )
+            xaxis=dict(rangeslider=dict(visible=True), type="date"),
+            margin=dict(l=20, r=20, t=30, b=20),
         )
         return self.figure

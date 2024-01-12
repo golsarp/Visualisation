@@ -156,7 +156,7 @@ if __name__ == "__main__":
                         [
                             html.Div(
                                 [
-                                    html.H4("Home Bench"),
+                                    # html.H4("Home Bench"),
                                     html.P(id="table_out_home"),
                                     html.P(id="table_out_home_high"),
                                     # home_table,
@@ -164,12 +164,12 @@ if __name__ == "__main__":
                                 style={
                                     "display": "inline-block",
                                     "width": "30%",
-                                    "margin-right": "80px",  # Add margin to the right
+                                    "margin-right": "50px",  # Add margin to the right
                                 },
                             ),
                             html.Div(
                                 [
-                                    html.H4("Away Bench"),
+                                    # html.H4("Away Bench"),
                                     html.P(id="table_out_away"),
                                     html.P(id="table_out_away_high"),
                                     # home_table,
@@ -177,6 +177,23 @@ if __name__ == "__main__":
                                 style={
                                     "display": "inline-block",
                                     "width": "30%",
+                                },
+                            ),
+                            html.Div(
+                                [
+                                    radar_plot,
+                                    html.Button(
+                                        "Plot button", id="radar-button", n_clicks=0
+                                    ),
+                                    html.Button(
+                                        children="Select Players Off",
+                                        id="select-button",
+                                        n_clicks=0,
+                                    ),
+                                ],
+                                style={
+                                    "display": "inline-block",
+                                    # "width": "30%",
                                 },
                             ),
                         ],
@@ -190,14 +207,14 @@ if __name__ == "__main__":
                 id="right-column",
                 className="four columns",
                 children=[
-                    # radar plot
-                    radar_plot,
-                    html.Button("Plot button", id="radar-button", n_clicks=0),
-                    html.Button(
-                        children="Select Players Off",
-                        id="select-button",
-                        n_clicks=0,
-                    ),
+                    # radar_plot,
+                    # radar_plot,
+                    # html.Button("Plot button", id="radar-button", n_clicks=0),
+                    # html.Button(
+                    #     children="Select Players Off",
+                    #     id="select-button",
+                    #     n_clicks=0,
+                    # ),
                     # team plot
                     team_plot,
                     historic_plot,

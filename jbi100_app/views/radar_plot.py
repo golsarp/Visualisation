@@ -82,7 +82,7 @@ class Radar(html.Div):
             height=300,
             width=400,
             # margin=dict(l=0, r=0, t=0, b=0),
-            margin=dict(b=20),
+            margin=dict(t=27, b=10),
             # legend=dict(x=0, y=1.02),  # Adjust x and y to position the legend on top
         )
         # self.fig.show()

@@ -139,21 +139,21 @@ class Field(html.Div):
             color="color",
             symbol="position",
             hover_data=hover_columns,
-            height=400,  # Set the height of the figure
+            height=370,  # Set the height of the figure
             width=900,
             color_discrete_map=color_mapping,
         )
         self.fig.update_layout(
+            # margin=dict(l=20, r=20, t=20, b=20),
+            margin=dict(l=20, r=20, t=10, b=0),
             xaxis_title="",
             yaxis_title="",
-            xaxis=dict(linecolor="red")
-            # plot_bgcolor="rgb(0, 128, 0)",
+            plot_bgcolor="rgb(0, 200, 0)",
         )
         self.fig.update_xaxes(showticklabels=False)
         self.fig.update_yaxes(showticklabels=False)
-        self.fig.update_traces(line_color="black")
-        self.fig.update_xaxes(showgrid=True, gridcolor="red")
-        self.fig.update_yaxes(showgrid=True, gridcolor="red")
+        self.fig.update_xaxes(showgrid=True, gridcolor="rgb(0, 128, 0)")
+        self.fig.update_yaxes(showgrid=True, gridcolor="rgb(0, 128, 0)")
 
         # # Update hover template to exclude unwanted columns
         # hover_template = "<br>".join(
@@ -171,14 +171,18 @@ class Field(html.Div):
         # Add annotations (text on top of values)
         for i, row in df_concat.iterrows():
             player_name_parts = row["player"].split()  # Split the full name into parts
-
+            last_name = None
             # Use only the first part of the name
-            last_name = player_name_parts[1] if player_name_parts else ""
+            if len(player_name_parts) > 1:
+                last_name = player_name_parts[1] if player_name_parts else ""
+            else:
+                last_name = player_name_parts[0]
             self.fig.add_annotation(
                 x=row["position_x"],  # x-coordinate of the annotation
                 y=row["corrected_y"],
                 # y=row["position_y"],  # y-coordinate of the annotation
                 # name=row["player"],
+                # text=str(row["player"]),  # text to display
                 text=str(last_name),  # text to display
                 xshift=0,
                 yshift=+20,

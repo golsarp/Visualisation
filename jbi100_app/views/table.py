@@ -21,10 +21,24 @@ class Table(html.Div):
         )
 
     def plot_table(self, df):
+        # print(df.columns)
+        # df["birth_year"] = 2023 - df["birth_year"]
+        # new_col_names = {
+        #      "Player",
+        #     "position": "Position",
+        #     "birth_year": "Age",
+        # }
+        new_column_names = ["Player", "Position", "Age"]
+        new_columns = [{"name": name, "id": name} for name in new_column_names]
+
+        # df = df.rename(columns=new_col_names)
+
+        # print(df)
         return (
             dash_table.DataTable(
                 id=self.html_id,
                 columns=[{"name": i, "id": i} for i in df.columns],
+                # columns=new_columns,
                 data=df.to_dict("records"),
                 style_cell=dict(textAlign="left"),
                 style_header=dict(backgroundColor="paleturquoise"),
@@ -44,5 +58,12 @@ class Table(html.Div):
                         "backgroundColor": "rgba(0, 116, 217, 0.3)",
                     }
                 ],
+                virtualization=True,  # Enable virtualization for infinite scrolling
+                fixed_rows={"headers": True},  # Keep header fixed at the top
+                style_table={
+                    "height": "250px",
+                    # "width": "400px",
+                    "overflowY": "auto",
+                },  #
             ),
         )
