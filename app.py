@@ -233,7 +233,6 @@ if __name__ == "__main__":
         Output('team-plot-store', 'data'),
         Input(team_plot.html_id, 'clickData'),
         State('team-plot-store', 'data'),
-        prevent_initial_call=True
     )
     def store_click_data(click_data, stored_data):
         # if no point has been clicked yet, initialize an empty dictionary
@@ -265,7 +264,6 @@ if __name__ == "__main__":
          Input("team-plot-dropdown", "value"),  # feature selection
          Input('team-plot-store', 'data')],  # click data
         State(team_plot.html_id, 'figure'),
-        prevent_initial_call=True
     )
     def update_team_plot(home_team, away_team, features, stored_data, current_figure):
 
