@@ -276,6 +276,10 @@ if __name__ == "__main__":
         # update the figure with the new data
         updated_figure = team_plot.plot_bar(features, all_players)
 
+        # if stored_data is not initialized yet, initialize it with all points selected
+        if not stored_data:
+            stored_data = {str(i): list(range(len(trace['y']))) for i, trace in enumerate(updated_figure['data'])}
+
         # extract traces
         traces = updated_figure['data']
 
