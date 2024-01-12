@@ -56,7 +56,8 @@ class Bar(html.Div):
                           hover_name='name', hover_data={'team': False, 'feature': False, 'value': True}
                           , title='Team plot')
 
-        self.fig.update_layout(legend={"title": "Teams"}, xaxis_title=None, yaxis_title='Nr of times')
+        self.fig.update_layout(legend={"title": "Teams"}, xaxis_title=None, yaxis_title='Nr of times',
+                               clickmode='event')
 
         return self.fig
 
