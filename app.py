@@ -5,6 +5,8 @@ from jbi100_app.views.radar_plot import Radar
 from jbi100_app.views.team_plot import Bar
 import time
 from jbi100_app.views.historic import Historic
+from jbi100_app.views.table import Table
+
 
 # import dash_core_components as dcc
 from dash import dcc
@@ -41,9 +43,16 @@ if __name__ == "__main__":
 
     # radar plot
     radar_plot = Radar("Radar-plot", selected_players)
-    #historical plot
+    # historical plot
     historic_plot = Historic("Historic-plot")
-   
+
+    home_bench = None
+
+    home_table = Table("home-table")
+
+    away_table = Table("away-table")
+    home_bench = None
+
     # first 5 teams initially
     # there are 32 teams, idk how to display them nicely
     df = pd.read_csv(player_poss_path)
@@ -137,6 +146,62 @@ if __name__ == "__main__":
                     # Existing components
                     # field object
                     field,
+                    html.Div(
+                        [
+                            html.Div(
+                                [
+                                    # html.H4("Home Bench"),
+                                    html.P(id="table_out_home"),
+                                    html.P(id="table_out_home_high"),
+                                    html.Button(
+                                        "Swap Home ", id="home-swap", n_clicks=0
+                                    ),
+                                    # home_table,
+                                ],
+                                # html.Button("Swap Home ", id="home-swap", n_clicks=0),
+                                style={
+                                    "display": "inline-block",
+                                    "width": "30%",
+                                    "margin-right": "50px",  # Add margin to the right
+                                },
+                            ),
+                            html.Div(
+                                [
+                                    # html.H4("Away Bench"),
+                                    html.P(id="table_out_away"),
+                                    html.P(id="table_out_away_high"),
+                                    html.Button(
+                                        "Swap Away ", id="away-swap", n_clicks=0
+                                    ),
+                                    # home_table,
+                                ],
+                                style={
+                                    "display": "inline-block",
+                                    "width": "30%",
+                                },
+                            ),
+                            html.Div(
+                                [
+                                    radar_plot,
+                                    html.Button(
+                                        "Plot button", id="radar-button", n_clicks=0
+                                    ),
+                                    html.Button(
+                                        children="Select Players Off",
+                                        id="select-button",
+                                        n_clicks=0,
+                                    ),
+                                ],
+                                style={
+                                    "display": "inline-block",
+                                    # "width": "30%",
+                                },
+                            ),
+                        ],
+                        style={
+                            "display": "flex",
+                        },
+                    ),
                 ],
             ),
             html.Div(
@@ -144,21 +209,29 @@ if __name__ == "__main__":
                 className="four columns",
                 children=[
                     # radar plot
-                    radar_plot,
-                    html.Button("Plot button", id="radar-button", n_clicks=0),
-                    html.Button(
-                        children="Select Players Off",
-                        id="select-button",
-                        n_clicks=0,
-                    ),
+                    # radar_plot,
+                    # html.Button("Plot button", id="radar-button", n_clicks=0),
+                    # html.Button(
+                    #     children="Select Players Off",
+                    #     id="select-button",
+                    #     n_clicks=0,
+                    # ),
                     # team plot
                     team_plot,
-                    dcc.Store(id='team-plot-store', data={}),
+                    dcc.Store(id="team-plot-store", data={}),
                     # team plot dropdown feature selector
-                    dcc.Dropdown(['dribbles_completed', 'passes_short', 'passes_medium',
-                                  'passes_long', 'shots_on_target'],
-                                 ['dribbles_completed', 'shots_on_target'],
-                                 multi=True, id="team-plot-dropdown"),
+                    dcc.Dropdown(
+                        [
+                            "dribbles_completed",
+                            "passes_short",
+                            "passes_medium",
+                            "passes_long",
+                            "shots_on_target",
+                        ],
+                        ["dribbles_completed", "shots_on_target"],
+                        multi=True,
+                        id="team-plot-dropdown",
+                    ),
                     # historic plot
                     historic_plot,
                 ],
@@ -185,7 +258,6 @@ if __name__ == "__main__":
             new_label = "Select Players"
             return new_label
 
-
     @app.callback(
         Output(field.html_id, "figure"),
         [
@@ -195,33 +267,53 @@ if __name__ == "__main__":
             Input("away-dropdown", "value"),
             Input("home-formation", "value"),
             Input("away-formation", "value"),
+            Input("select-button", "n_clicks"),
         ],
     )
-    def update_field(select, click_data, home, away, home_form, away_from):
+    def update_field(
+        select, click_data, home, away, home_form, away_from, select_button
+    ):
         # get selected players
+
         if click_data is not None and player_select:
             # Extract information about the clicked point
             clicked_point_info = click_data["points"][0]
             clicked_name = clicked_point_info["customdata"][0]
-            selected_players.append(clicked_name)
+            if clicked_name in selected_players:
+                selected_players.remove(clicked_name)
+            else:
+                selected_players.append(clicked_name)
 
-        player_pos, player_df = field.positionPlayer(home, away, home_form, away_from)
+            # if clicked_name not in selected_players:
+            #     selected_players.append(clicked_name)
+            # print(selected_players)
+
+        player_pos, player_df, home_t, away_t = field.positionPlayer(
+            home, away, home_form, away_from, selected_players=selected_players
+        )
 
         global all_players
         all_players = player_df["player"].unique()
-
+        # for tables
+        global home_bench
+        home_bench = home_t
+        global away_bench
+        away_bench = away_t
+        # print(home_bench)
         # update field
         return player_pos
 
     @app.callback(
         Output(radar_plot.html_id, "figure"),
-        [Input("radar-button", "n_clicks"),
-         Input("select-button", "n_clicks"),],
+        [
+            Input("radar-button", "n_clicks"),
+            Input("select-button", "n_clicks"),
+        ],
     )
     # just to make it listen
     def update_radar(rad_button, select_but):
         return radar_plot.plot_radar(selected_players)
-    
+
     @app.callback(
         Output(historic_plot.html_id, "figure"),
         [Input("home-dropdown", "value"), Input("away-dropdown", "value")],
@@ -230,9 +322,9 @@ if __name__ == "__main__":
         return historic_plot.build_historic(home, away)
 
     @app.callback(
-        Output('team-plot-store', 'data'),
-        Input(team_plot.html_id, 'clickData'),
-        State('team-plot-store', 'data'),
+        Output("team-plot-store", "data"),
+        Input(team_plot.html_id, "clickData"),
+        State("team-plot-store", "data"),
     )
     def store_click_data(click_data, stored_data):
         # if no point has been clicked yet, initialize an empty dictionary
@@ -256,17 +348,17 @@ if __name__ == "__main__":
 
         return stored_data
 
-
     @app.callback(
-        Output(team_plot.html_id, 'figure'),
-        [Input("home-dropdown", "value"),  # home team
-         Input("away-dropdown", "value"),  # away team
-         Input("team-plot-dropdown", "value"),  # feature selection
-         Input('team-plot-store', 'data')],  # click data
-        State(team_plot.html_id, 'figure'),
+        Output(team_plot.html_id, "figure"),
+        [
+            Input("home-dropdown", "value"),  # home team
+            Input("away-dropdown", "value"),  # away team
+            Input("team-plot-dropdown", "value"),  # feature selection
+            Input("team-plot-store", "data"),
+        ],  # click data
+        State(team_plot.html_id, "figure"),
     )
     def update_team_plot(home_team, away_team, features, stored_data, current_figure):
-
         # delay needed in order to ensure that the filed is updated
         time.sleep(1)
 
@@ -275,23 +367,84 @@ if __name__ == "__main__":
 
         # if stored_data is not initialized yet, initialize it with all points selected.
         # If stored data is empty, initialize it with all points selected
-        if not stored_data or (len(stored_data) == 1 and not next(iter(stored_data.values()))):
-            stored_data = {str(i): list(range(len(trace['y']))) for i, trace in enumerate(updated_figure['data'])}
+        if not stored_data or (
+            len(stored_data) == 1 and not next(iter(stored_data.values()))
+        ):
+            stored_data = {
+                str(i): list(range(len(trace["y"])))
+                for i, trace in enumerate(updated_figure["data"])
+            }
 
         # extract traces
-        traces = updated_figure['data']
+        traces = updated_figure["data"]
 
         # loop over all traces
         for idx, trace in enumerate(traces):
             # update selection state of the clicked point in the trace dict
             if str(idx) in stored_data:
-                trace.update({'selectedpoints': stored_data[str(idx)]})
+                trace.update({"selectedpoints": stored_data[str(idx)]})
             else:
-                trace.update({'selectedpoints': []})
+                trace.update({"selectedpoints": []})
 
             # update figure dict with updated trace dict
-            updated_figure['data'][idx].update(trace)
+            updated_figure["data"][idx].update(trace)
 
         return updated_figure
+
+    # bench for home
+
+    @app.callback(
+        Output("table_out_home", "children"),
+        [
+            Input("home-dropdown", "value"),
+            Input("home-formation", "value"),
+        ],
+    )
+    def update_table(home_drop, home_form):
+        # dealy needed in order to ensure that the filed is updated
+        time.sleep(1)
+        return home_table.plot_table(home_bench)
+
+    @app.callback(
+        Output("table_out_home_high", "children"),
+        [
+            Input(home_table.html_id, "active_cell"),
+        ],
+    )
+    def update_graph_home(active_cell):
+        # print("triggereed")
+        if active_cell:
+            # print("inside")
+            cell_data = home_bench.iloc[active_cell["row"]][active_cell["column_id"]]
+            return f'Data: "{cell_data}" from table cell: {active_cell}'
+        return "Click the Players to Swap"
+
+    # **********************************
+    # bench for away
+    @app.callback(
+        Output("table_out_away", "children"),
+        [
+            Input("away-dropdown", "value"),
+            Input("away-formation", "value"),
+        ],
+    )
+    def update_table(away_drop, away_from):
+        # dealy needed in order to ensure that the filed is updated
+        time.sleep(1)
+        return away_table.plot_table(away_bench)
+
+    @app.callback(
+        Output("table_out_away_high", "children"),
+        [
+            Input(away_table.html_id, "active_cell"),
+        ],
+    )
+    def update_graph_away(active_cell):
+        # print("triggereed")
+        if active_cell:
+            # print("inside")
+            cell_data = away_bench.iloc[active_cell["row"]][active_cell["column_id"]]
+            return f'Data: "{cell_data}" from table cell: {active_cell}'
+        return "Click the Players to Swap"
 
     app.run_server(debug=False, dev_tools_ui=False)
