@@ -9,7 +9,7 @@ position_mapping_away = {"GK": 13, "DF": 12, "MF": 10, "FW": 8}
 player_poss_path = (
     "FIFA DataSet/Data/FIFA World Cup 2022 Player Data/player_possession.csv"
 )
-formation = ["4-2-3-1", "5-3-2-1", "4-4-2-1", "4-2-3-1"]
+formation = ["4-3-3-1", "5-3-2-1", "4-4-2-1", "3-5-2-1"]
 
 GK = 1
 DF = 2

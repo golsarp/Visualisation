@@ -51,7 +51,7 @@ if __name__ == "__main__":
     home_table = Table("home-table")
 
     away_table = Table("away-table")
-    home_bench = None
+    away_bench = None
 
     # first 5 teams initially
     # there are 32 teams, idk how to display them nicely
@@ -87,7 +87,11 @@ if __name__ == "__main__":
                                         style={"width": "70%"},
                                     ),
                                 ],
-                                style={"display": "inline-block", "width": "25%"},
+                                style={
+                                    "display": "inline-block",
+                                    "width": "25%",
+                                },
+                                # style={"display": "flex", "width": "25%"},
                             ),
                             html.Div(
                                 [
@@ -105,6 +109,7 @@ if __name__ == "__main__":
                                     ),
                                 ],
                                 style={"display": "inline-block", "width": "25%"},
+                                # style={"display": "flex", "width": "25%"},
                             ),
                             html.Div(
                                 [
@@ -122,7 +127,7 @@ if __name__ == "__main__":
                                     ),
                                 ],
                                 style={"display": "inline-block", "width": "25%"},
-                                # style={"flex": "1", "margin": 0, "padding": 0},
+                                # style={"display": "flex", "width": "25%"},
                             ),
                             html.Div(
                                 [
@@ -140,8 +145,10 @@ if __name__ == "__main__":
                                     ),
                                 ],
                                 style={"display": "inline-block", "width": "25%"},
+                                # style={"display": "flex", "width": "25%"},
                             ),
                         ],
+                        # style={"display": "flex", "flexWrap": "wrap"},
                     ),
                     # Existing components
                     # field object
@@ -200,6 +207,20 @@ if __name__ == "__main__":
                         ],
                         style={
                             "display": "flex",
+                        },
+                    ),
+                    dcc.Tabs(
+                        id="my-tabs",
+                        value="tab1",
+                        children=[
+                            dcc.Tab(label="Category 1", value="tab1"),
+                            dcc.Tab(label="Category 2", value="tab2"),
+                            dcc.Tab(label="Category 3", value="tab3"),
+                        ],
+                        style={
+                            "fontSize": 12,  # Adjust the font size
+                            "height": 30,  # Adjust the height
+                            "padding": "5px",  # Adjust padding
                         },
                     ),
                 ],
@@ -403,6 +424,7 @@ if __name__ == "__main__":
     def update_table(home_drop, home_form):
         # dealy needed in order to ensure that the filed is updated
         time.sleep(1)
+        # print(home_bench.columns)
         return home_table.plot_table(home_bench)
 
     @app.callback(
@@ -416,8 +438,9 @@ if __name__ == "__main__":
         if active_cell:
             # print("inside")
             cell_data = home_bench.iloc[active_cell["row"]][active_cell["column_id"]]
-            return f'Data: "{cell_data}" from table cell: {active_cell}'
-        return "Click the Players to Swap"
+            print(f'Data: "{cell_data}" from table cell: {active_cell}')
+            # return f'Data: "{cell_data}" from table cell: {active_cell}'
+        # return "Click the Players to Swap"
 
     # **********************************
     # bench for away
@@ -444,7 +467,8 @@ if __name__ == "__main__":
         if active_cell:
             # print("inside")
             cell_data = away_bench.iloc[active_cell["row"]][active_cell["column_id"]]
-            return f'Data: "{cell_data}" from table cell: {active_cell}'
-        return "Click the Players to Swap"
+            print(f'Data: "{cell_data}" from table cell: {active_cell}')
+            # return f'Data: "{cell_data}" from table cell: {active_cell}'
+        # return "Click the Players to Swap"
 
     app.run_server(debug=False, dev_tools_ui=False)
