@@ -438,23 +438,13 @@ if __name__ == "__main__":
         # delay needed in order to ensure that the filed is updated
         time.sleep(1)
 
-        # TODO: deselect selection for features which are no longer used
+        # TODO: deselect selection for features which are no longer used (use optional callback output)
+
         global sorted_features
         sorted_features = sorted(features)
 
         # update the figure with the new data
         updated_figure = team_plot.plot_bar(sorted_features, all_players)
-
-        # TODO: init stored_data with all points selected
-        # # if stored_data is not initialized yet, initialize it with all points selected.
-        # # If stored data is empty, initialize it with all points selected
-        # if not stored_data or (
-        #     len(stored_data) == 1 and not next(iter(stored_data.values()))
-        # ):
-        #     stored_data = {
-        #         str(i): list(range(len(trace["y"])))
-        #         for i, trace in enumerate(updated_figure["data"])
-        #     }
 
         # extract traces
         traces = updated_figure["data"]
@@ -470,6 +460,16 @@ if __name__ == "__main__":
             if team_index not in stored_data:
                 stored_data[team_index] = []
             stored_data[team_index].append(clicked_point)
+
+        # if stored_data is not initialized yet, initialize it with all points selected.
+        # If stored data is empty, initialize it with all points selected
+        if not stored_data or (
+            len(stored_data) == 1 and not next(iter(stored_data.values()))
+        ):
+            stored_data = {
+                str(i): list(range(len(trace["y"])))
+                for i, trace in enumerate(updated_figure["data"])
+            }
 
         # loop over all traces
         for idx, trace in enumerate(traces):
