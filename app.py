@@ -40,6 +40,8 @@ if __name__ == "__main__":
 
     selected_players_team_plot_field = []
 
+    sorted_features = []
+
     # Field object
     field = Field("Footbal Field", "x", "y")
 
@@ -348,11 +350,10 @@ if __name__ == "__main__":
         Output("team-plot-store", "data"),
         Input(team_plot.html_id, "clickData"),
         State("team-plot-store", "data"),
-        Input("team-plot-dropdown", "value"),  # feature selection
         Input("home-dropdown", "value"),  # home team
         Input("away-dropdown", "value"),  # away team
     )
-    def store_click_data(click_data, stored_data, features, home_team, away_team):
+    def store_click_data(click_data, stored_data, home_team, away_team):
         # if no point has been clicked yet or the teams have changed, initialize an empty list
         if click_data is None:
             return []
@@ -367,7 +368,7 @@ if __name__ == "__main__":
         # TODO: remove players from stored_data if they are not in selected_players_team_plot_field. Select players
         #  in all features if they have been selected in selected_players_team_plot_field
 
-        sorted_features = sorted(features)
+        global sorted_features
 
         # which point has been clicked?
         clicked_point = click_data["points"][0]["pointIndex"]
@@ -406,6 +407,10 @@ if __name__ == "__main__":
         else:
             stored_data.append(clicked_segment)
 
+        global selected_players_team_plot_field
+
+        selected_players_team_plot_field = []
+
         # Iterate over each segment in stored_data
         for segment in stored_data:
             # Split the segment string into parts
@@ -413,9 +418,7 @@ if __name__ == "__main__":
             # The player name is the last part
             player_name = parts[-1]
 
-            global selected_players_team_plot_field
-
-            # Add the player name to the list of unique players, if it's not already in the list
+            # Add players to selected_players_team_plot_field if they are not already in it
             if player_name not in selected_players_team_plot_field:
                 selected_players_team_plot_field.append(player_name)
 
@@ -435,6 +438,8 @@ if __name__ == "__main__":
         # delay needed in order to ensure that the filed is updated
         time.sleep(1)
 
+        # TODO: deselect selection for features which are no longer used
+        global sorted_features
         sorted_features = sorted(features)
 
         # update the figure with the new data
