@@ -73,37 +73,104 @@ class Field(html.Div):
 
         return group["corrected_y"]
 
-    def positionPlayer(self, home, away, home_form, away_form, selected_players):
-        df_home = self.process_df(home, True)
-        df_away = self.process_df(away, False)
-        # Bench players also extracted
-        df_home_field, df_home_bench = self.select_players(df_home, home_form)
-        df_away_field, df_away_bench = self.select_players(df_away, away_form)
+    def positionPlayer(
+        self,
+        home,
+        away,
+        home_form,
+        away_form,
+        selected_players,
+        # home_bench_pl,
+        home_field_pl,
+        away_field_pl,
+        df_concat,
+        home_table,
+        away_table,
+    ):
+        # print("selected home bench: ", home_bench_pl)
+        # print("selected home field: ", home_field_pl)
+        if df_concat is None:
+            # print("entered INIT ")
+            df_home = self.process_df(home, True)
+            df_away = self.process_df(away, False)
+            # Bench players also extracted
 
-        home_table = df_home_bench[["player", "position", "age"]]
-        away_table = df_away_bench[["player", "position", "age"]]
+            # do all of this if swapping is needed
+            # home_b_pl_data = None
+            # if home_bench_pl is not None:
+            #     home_b_pl_data = df_home[df_home["player"] == home_bench_pl]
+            #     print(home_b_pl_data.empty)
+            # home_field_pl_data = None
+            # if home_field_pl is not None:
+            #     home_field_pl_data = df_home[df_home["player"] == home_field_pl]
+            #     print(home_field_pl_data.empty)
 
-        max_val_home = df_home_field["position_y"].max()
-        max_val_away = df_away_field["position_y"].max()
-        max_val = max(max_val_home, max_val_away)
+            df_home_field, df_home_bench = self.select_players(df_home, home_form)
+            # print(df_home_field)
+            # if not home_field_pl_data.empty and :
+            # remove home_field_pl_data from home field
+            # add
 
-        df_home_field["corrected_y"] = (
-            df_home_field.groupby("position")
-            .apply(lambda group: self.calculate_corrected_y(group, max_val))
-            .reset_index(level=0, drop=True)
-        )
+            df_away_field, df_away_bench = self.select_players(df_away, away_form)
 
-        df_away_field["corrected_y"] = (
-            df_away_field.groupby("position")
-            .apply(lambda group: self.calculate_corrected_y(group, max_val))
-            .reset_index(level=0, drop=True)
-        )
+            # home_table = df_home_bench[["player", "position", "age"]]
+            # away_table = df_away_bench[["player", "position", "age"]]
 
-        df_concat = pd.concat([df_home_field, df_away_field], ignore_index=True)
+            home_table = df_home_bench
+            away_table = df_away_bench
+
+            max_val_home = df_home_field["position_y"].max()
+            max_val_away = df_away_field["position_y"].max()
+            max_val = max(max_val_home, max_val_away)
+
+            df_home_field["corrected_y"] = (
+                df_home_field.groupby("position")
+                .apply(lambda group: self.calculate_corrected_y(group, max_val))
+                .reset_index(level=0, drop=True)
+            )
+
+            df_away_field["corrected_y"] = (
+                df_away_field.groupby("position")
+                .apply(lambda group: self.calculate_corrected_y(group, max_val))
+                .reset_index(level=0, drop=True)
+            )
+
+            df_concat = pd.concat([df_home_field, df_away_field], ignore_index=True)
+        # else:
+        #    print("Did not enter ")
+
         # df_concat["selected"] = df_concat["player"].isin(selected_players)
         # Apply conditions directly to create the 'color' column
+        # df_concat["color"] = df_concat.apply(
+        #     lambda row: "Yellow"
+        #     if row["player"] in selected_players
+        #     else "Blue"
+        #     if row["team"] == home
+        #     else "Red"
+        #     if row["team"] == away
+        #     else "Other",
+        #     axis=1,
+        # )
+
+        # df_concat["color"] = df_concat.apply(
+        #     lambda row: "Black"
+        #     if row["player"] == home_field_pl
+        #     else "Yellow"
+        #     if row["player"] in selected_players
+        #     else "Blue"
+        #     if row["team"] == home
+        #     else "Red"
+        #     if row["team"] == away
+        #     else "Other",
+        #     axis=1,
+        # )
+
         df_concat["color"] = df_concat.apply(
-            lambda row: "Yellow"
+            lambda row: "Purple"
+            if row["player"] == away_field_pl
+            else "Black"
+            if row["player"] == home_field_pl
+            else "Yellow"
             if row["player"] in selected_players
             else "Blue"
             if row["team"] == home
@@ -130,7 +197,14 @@ class Field(html.Div):
             # "passes_received",
             # "progressive_passes_received",
         ]
-        color_mapping = {"Green": "green", "Blue": "blue", "Red": "red"}
+        color_mapping = {
+            "Green": "green",
+            "Blue": "blue",
+            "Red": "red",
+            "Yellow": "yellow",
+            "Black": "Black",
+            "Purple": "Purple",
+        }
         self.fig = px.scatter(
             df_concat,
             y="corrected_y",

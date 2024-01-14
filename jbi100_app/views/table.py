@@ -28,11 +28,10 @@ class Table(html.Div):
         #     "position": "Position",
         #     "birth_year": "Age",
         # }
-        new_column_names = ["Player", "Position", "Age"]
-        new_columns = [{"name": name, "id": name} for name in new_column_names]
 
         # df = df.rename(columns=new_col_names)
-
+        selected_columns = ["player", "position", "age"]
+        df = df[selected_columns]
         # print(df)
         return (
             dash_table.DataTable(
