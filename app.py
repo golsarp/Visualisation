@@ -38,6 +38,8 @@ if __name__ == "__main__":
     # If selection is on
     player_select = False
 
+    selected_players_team_plot_field = []
+
     # Field object
     field = Field("Footbal Field", "x", "y")
 
@@ -346,26 +348,76 @@ if __name__ == "__main__":
         Output("team-plot-store", "data"),
         Input(team_plot.html_id, "clickData"),
         State("team-plot-store", "data"),
+        Input("team-plot-dropdown", "value"),  # feature selection
+        Input("home-dropdown", "value"),  # home team
+        Input("away-dropdown", "value"),  # away team
     )
-    def store_click_data(click_data, stored_data):
-        # if no point has been clicked yet, initialize an empty dictionary
+    def store_click_data(click_data, stored_data, features, home_team, away_team):
+        # if no point has been clicked yet or the teams have changed, initialize an empty list
         if click_data is None:
-            return {}
+            return []
+
+        # check if stored data has values
+        if stored_data:
+            # Check if the teams in stored_data are the same as the input teams
+            stored_teams = {segment.split('|')[0] for segment in stored_data}
+            if home_team not in stored_teams and away_team not in stored_teams:
+                return []
+
+        # TODO: remove players from stored_data if they are not in selected_players_team_plot_field. Select players
+        #  in all features if they have been selected in selected_players_team_plot_field
+
+        sorted_features = sorted(features)
 
         # which point has been clicked?
         clicked_point = click_data["points"][0]["pointIndex"]
-        clicked_trace = str(click_data["points"][0]["curveNumber"])
+        clicked_team_index = click_data["points"][0]["curveNumber"]
 
-        # if the clicked trace is not in the stored data, add it
-        if clicked_trace not in stored_data:
-            stored_data[clicked_trace] = []
+        # determine the team name based on the clicked_team_index
+        team_name = home_team if clicked_team_index == 0 else away_team
 
-        # if the clicked point is already selected, deselect it
-        if clicked_point in stored_data[clicked_trace]:
-            stored_data[clicked_trace].remove(clicked_point)
-        # otherwise, select the clicked point
+        if clicked_point < 11:
+            stack_index = clicked_point
+            feature_index = 0
         else:
-            stored_data[clicked_trace].append(clicked_point)
+            stack_index = clicked_point % 11
+            feature_index = clicked_point // 11
+
+        # determine the feature name based on the feature_index
+        feature_name = sorted_features[feature_index]
+
+        # get the dataframe of players on the field.
+        sorted_plot_df = team_plot.get_dataframe()
+
+        filtered_df = sorted_plot_df[(sorted_plot_df['team'] == team_name)
+                                     & (sorted_plot_df['feature'] == feature_name)]
+        # Reset the index of the dataframe
+        filtered_df = filtered_df.reset_index(drop=True)
+        # Get the player's name at the feature_index
+        player_name = filtered_df.loc[stack_index, 'name']
+
+        # create a unique key for the clicked segment
+        clicked_segment = f"{team_name}|{feature_name}|{stack_index}|{player_name}"
+
+        # if the clicked segment is already selected, deselect it
+        if clicked_segment in stored_data:
+            stored_data.remove(clicked_segment)
+        # otherwise, select the clicked segment
+        else:
+            stored_data.append(clicked_segment)
+
+        # Iterate over each segment in stored_data
+        for segment in stored_data:
+            # Split the segment string into parts
+            parts = segment.split("|")
+            # The player name is the last part
+            player_name = parts[-1]
+
+            global selected_players_team_plot_field
+
+            # Add the player name to the list of unique players, if it's not already in the list
+            if player_name not in selected_players_team_plot_field:
+                selected_players_team_plot_field.append(player_name)
 
         return stored_data
 
@@ -379,25 +431,38 @@ if __name__ == "__main__":
         ],  # click data
         State(team_plot.html_id, "figure"),
     )
-    def update_team_plot(home_team, away_team, features, stored_data, current_figure):
+    def update_team_plot(home_team, away_team, features, stored_data_transfer, current_figure):
         # delay needed in order to ensure that the filed is updated
         time.sleep(1)
 
         # update the figure with the new data
         updated_figure = team_plot.plot_bar(features, all_players)
 
-        # if stored_data is not initialized yet, initialize it with all points selected.
-        # If stored data is empty, initialize it with all points selected
-        if not stored_data or (
-            len(stored_data) == 1 and not next(iter(stored_data.values()))
-        ):
-            stored_data = {
-                str(i): list(range(len(trace["y"])))
-                for i, trace in enumerate(updated_figure["data"])
-            }
+        # TODO: init stored_data with all points selected
+        # # if stored_data is not initialized yet, initialize it with all points selected.
+        # # If stored data is empty, initialize it with all points selected
+        # if not stored_data or (
+        #     len(stored_data) == 1 and not next(iter(stored_data.values()))
+        # ):
+        #     stored_data = {
+        #         str(i): list(range(len(trace["y"])))
+        #         for i, trace in enumerate(updated_figure["data"])
+        #     }
 
         # extract traces
         traces = updated_figure["data"]
+
+        playing_teams = [home_team, away_team]
+
+        stored_data = {}
+        for segment in stored_data_transfer:
+            team_name, feature_name, stack_index, _ = segment.split('|')
+            team_index = str(playing_teams.index(team_name))
+            feature_index = features.index(feature_name)
+            clicked_point = feature_index * 11 + int(stack_index)
+            if team_index not in stored_data:
+                stored_data[team_index] = []
+            stored_data[team_index].append(clicked_point)
 
         # loop over all traces
         for idx, trace in enumerate(traces):
