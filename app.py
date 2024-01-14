@@ -435,8 +435,10 @@ if __name__ == "__main__":
         # delay needed in order to ensure that the filed is updated
         time.sleep(1)
 
+        sorted_features = sorted(features)
+
         # update the figure with the new data
-        updated_figure = team_plot.plot_bar(features, all_players)
+        updated_figure = team_plot.plot_bar(sorted_features, all_players)
 
         # TODO: init stored_data with all points selected
         # # if stored_data is not initialized yet, initialize it with all points selected.
@@ -458,7 +460,7 @@ if __name__ == "__main__":
         for segment in stored_data_transfer:
             team_name, feature_name, stack_index, _ = segment.split('|')
             team_index = str(playing_teams.index(team_name))
-            feature_index = features.index(feature_name)
+            feature_index = sorted_features.index(feature_name)
             clicked_point = feature_index * 11 + int(stack_index)
             if team_index not in stored_data:
                 stored_data[team_index] = []
