@@ -70,7 +70,7 @@ if __name__ == "__main__":
     # first 5 teams initially
     # there are 32 teams, idk how to display them nicely
     df = pd.read_csv(player_poss_path)
-    teams = df["team"].unique()[:5]
+    teams = df["team"].unique()[:10]
 
     # team plot
     team_plot = Bar("Team-plot", selected_players, selected_teams, features)
