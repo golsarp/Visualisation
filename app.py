@@ -18,7 +18,7 @@ from jbi100_app.config import (
 )
 
 
-from dash import html
+from dash import html, Dash, no_update
 import plotly.express as px
 from dash.dependencies import Input, Output, State
 import pandas as pd
@@ -244,6 +244,7 @@ if __name__ == "__main__":
                     # team plot
                     team_plot,
                     dcc.Store(id="team-plot-store", data={}),
+                    dcc.Store(id="filtered_stored_data", data={}),
                     # team plot dropdown feature selector
                     dcc.Dropdown(
                         [
@@ -431,14 +432,16 @@ if __name__ == "__main__":
             Input("away-dropdown", "value"),  # away team
             Input("team-plot-dropdown", "value"),  # feature selection
             Input("team-plot-store", "data"),
-        ],  # click data
-        State(team_plot.html_id, "figure"),
+        ],
     )
-    def update_team_plot(home_team, away_team, features, stored_data_transfer, current_figure):
+    def update_team_plot(home_team, away_team, features, stored_data_transfer):
         # delay needed in order to ensure that the filed is updated
         time.sleep(1)
 
         # TODO: deselect selection for features which are no longer used (use optional callback output)
+
+        filtered_stored_data_transfer = [entry for entry in stored_data_transfer if
+                                         any(feature in entry for feature in features)]
 
         global sorted_features
         sorted_features = sorted(features)
@@ -452,7 +455,7 @@ if __name__ == "__main__":
         playing_teams = [home_team, away_team]
 
         stored_data = {}
-        for segment in stored_data_transfer:
+        for segment in filtered_stored_data_transfer:
             team_name, feature_name, stack_index, _ = segment.split('|')
             team_index = str(playing_teams.index(team_name))
             feature_index = sorted_features.index(feature_name)
