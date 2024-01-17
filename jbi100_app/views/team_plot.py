@@ -12,6 +12,7 @@ class Bar(html.Div):
         self.features = feature_list
         self.teams = teams_list
         self.feature_values = feature_values
+        self.sorted_plot_df = None
 
         super().__init__(
             children=[dcc.Graph(id=self.html_id)],
@@ -77,7 +78,12 @@ class Bar(html.Div):
             clickmode="event",
         )
 
+        self.sorted_plot_df = sorted_plot_df
+
         return self.fig
+
+    def get_dataframe(self):
+        return self.sorted_plot_df
 
 
 def get_datasets():
