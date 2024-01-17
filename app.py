@@ -578,8 +578,9 @@ if __name__ == "__main__":
             Input("select-button", "n_clicks"),
         ],
     )
-    def update_team_plot(home_team, away_team,home_form, away_from, features, stored_data_transfer,swap_home,
-        swap_away, highlight_button, reset_button):
+    def update_team_plot(home_team, away_team, home_form, away_from, features, stored_data_transfer, swap_home,
+                         swap_away, highlight_button, reset_button):
+
         # delay needed in order to ensure that the filed is updated
         time.sleep(1)
 
@@ -593,9 +594,6 @@ if __name__ == "__main__":
         traces = updated_figure["data"]
 
         global selected_players
-
-        # # create a color mapping for the players
-        # color_mapping = {player: 'orange' for player in selected_players}
 
         playing_teams = [home_team, away_team]
 
@@ -627,12 +625,6 @@ if __name__ == "__main__":
             # get the player's name from the trace's custom data
             player_names = [data[0] for data in trace['customdata']]
             team_names = [data[1] for data in trace['customdata']]
-
-            # # create a sorted list of unique team names
-            # unique_teams = sorted(list(set(team_names)))
-            #
-            # # create a list of team indices for each bar in the trace
-            # team_indices = [unique_teams.index(team_name) for team_name in team_names]
 
             team_indices = [playing_teams.index(team_name) for team_name in team_names]
 
