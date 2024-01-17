@@ -15,7 +15,7 @@ class Historic(html.Div):
             children=[dcc.Graph(id=self.html_id)],
         )
 
-    def build_historic(self, team1, team2):
+    def build_historic(self, team1, team2,colors):
         df = pd.read_csv(file_path)
         df["Year"] = df["Year"].astype(int)
         # Create an empty figure
@@ -85,15 +85,17 @@ class Historic(html.Div):
         )
         unique_years.sort()
 
+
         # Define a custom color scale function
         def get_color(is_home_team, is_home, is_winner):
+            
             # Define the base color for home and away
             if is_home_team:
-                base_color_home = [0, 0, 255]  # Blue
-                base_color_away = [255, 0, 0]  # Red
+                base_color_home = colors[10]  # Blue
+                base_color_away = colors[11]  # Red
             else:
-                base_color_home = [0, 255, 0]
-                base_color_away = [255, 165, 0]
+                base_color_home = colors[12]
+                base_color_away = colors[13]
             color = base_color_home if is_home else base_color_away
             if is_winner:
                 adjusted_color = "rgba({}, {}, {}, {})".format(

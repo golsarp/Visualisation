@@ -18,7 +18,7 @@ class Bar(html.Div):
             children=[dcc.Graph(id=self.html_id)],
         )
 
-    def plot_bar(self, categories, names):
+    def plot_bar(self, categories, names,home_team,away_team,color_list):
         df_poss, df_shoot, df_pass = get_datasets()
 
         attributes = {
@@ -58,16 +58,28 @@ class Bar(html.Div):
         sorted_plot_df = plot_df.sort_values(
             ["feature", "value"], ascending=[True, False]
         )
-        # print(sorted_plot_df)
+        
+        sorted_plot_df['color'] = np.where(sorted_plot_df['team'] == home_team, color_list[0], color_list[1])
+        #print(sorted_plot_df)
+
+        color_mapping = {
+            color_list[0]:color_list[0],
+            color_list[1]:color_list[1]
+        }
+
+        
         self.fig = px.bar(
             sorted_plot_df,
             x="feature",
             y="value",
-            color="team",
+            color="color",
             barmode="group",
             hover_name="name",
             hover_data={"team": False, "feature": False, "value": True},
             title="Team plot",
+            color_discrete_map=color_mapping,
+            
+
         )
 
         self.fig.update_layout(
@@ -77,6 +89,10 @@ class Bar(html.Div):
             margin=dict(t=40),
             clickmode="event",
         )
+                # Customize legend labels for specific colors
+        legend_labels = {'rgb(255,0,0)': home_team, 'rgb(0,255,0)': away_team}
+        for trace, legend_label in zip(self.fig.data, legend_labels.values()):
+            trace.name = legend_label
 
         self.sorted_plot_df = sorted_plot_df
 
