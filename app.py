@@ -6,6 +6,7 @@ from jbi100_app.views.team_plot import Bar
 import time
 from jbi100_app.views.historic import Historic
 from jbi100_app.views.table import Table
+from dash import callback_context
 
 
 # import dash_core_components as dcc
@@ -15,6 +16,7 @@ from jbi100_app.config import (
     position_mapping_away,
     player_poss_path,
     formation,
+    swap_players,
 )
 
 
@@ -41,6 +43,17 @@ if __name__ == "__main__":
     selected_players_team_plot_field = []
 
     sorted_features = []
+    # to swap bench players
+    home_swap = False
+    home_selected_field = None
+    home_selected_bench = None
+
+    # to swap away bench
+    away_swap = False
+    away_selected_field = None
+    away_selected_bench = None
+
+    player_dataf = None
 
     # Field object
     field = Field("Footbal Field", "x", "y")
@@ -60,7 +73,9 @@ if __name__ == "__main__":
     # first 5 teams initially
     # there are 32 teams, idk how to display them nicely
     df = pd.read_csv(player_poss_path)
-    teams = df["team"].unique()[:5]
+    teams = df["team"].unique()[:20]
+
+    l = ["a", "b"]
 
     # team plot
     team_plot = Bar("Team-plot", selected_players, selected_teams, features)
@@ -164,8 +179,15 @@ if __name__ == "__main__":
                                     # html.H4("Home Bench"),
                                     html.P(id="table_out_home"),
                                     html.P(id="table_out_home_high"),
+                                    ################# home bench ##########
                                     html.Button(
-                                        "Swap Home ", id="home-swap", n_clicks=0
+                                        "Swap Home Off ", id="home-swap", n_clicks=0
+                                    ),
+                                    # use this to update the field
+                                    html.Button(
+                                        "Swap",
+                                        id="home-swap_players",
+                                        n_clicks=0,
                                     ),
                                     # home_table,
                                 ],
@@ -182,7 +204,12 @@ if __name__ == "__main__":
                                     html.P(id="table_out_away"),
                                     html.P(id="table_out_away_high"),
                                     html.Button(
-                                        "Swap Away ", id="away-swap", n_clicks=0
+                                        "Swap Away Off ", id="away-swap", n_clicks=0
+                                    ),
+                                    html.Button(
+                                        "Swap",
+                                        id="away-swap_players",
+                                        n_clicks=0,
                                     ),
                                     # home_table,
                                 ],
@@ -218,7 +245,7 @@ if __name__ == "__main__":
                         value="tab1",
                         children=[
                             dcc.Tab(label="Category 1", value="tab1"),
-                            dcc.Tab(label="Category 2", value="tab2"),
+                            dcc.Tab(label="Category 2", value=l),
                             dcc.Tab(label="Category 3", value="tab3"),
                         ],
                         style={
@@ -227,6 +254,7 @@ if __name__ == "__main__":
                             "padding": "5px",  # Adjust padding
                         },
                     ),
+                    html.Div(id="hidden-div", style={"display": "none"}),
                 ],
             ),
             html.Div(
@@ -294,36 +322,127 @@ if __name__ == "__main__":
             Input("home-formation", "value"),
             Input("away-formation", "value"),
             Input("select-button", "n_clicks"),
+            Input("home-swap_players", "n_clicks"),
+            Input("away-swap_players", "n_clicks"),
         ],
     )
     def update_field(
-        select, click_data, home, away, home_form, away_from, select_button
+        select,
+        click_data,
+        home,
+        away,
+        home_form,
+        away_from,
+        select_button,
+        swap_home_but,
+        swap_away_but,
     ):
+        triggered_input_id = callback_context.triggered_id
         # get selected players
+        global home_selected_field
+        global home_selected_bench
+        # for away bench
+        global away_selected_field
+        global away_selected_bench
+        global player_dataf
+        global home_bench
+        global away_bench
 
-        if click_data is not None and player_select:
+        if click_data is not None:
             # Extract information about the clicked point
             clicked_point_info = click_data["points"][0]
             clicked_name = clicked_point_info["customdata"][0]
-            if clicked_name in selected_players:
-                selected_players.remove(clicked_name)
-            else:
-                selected_players.append(clicked_name)
+            # we are selecting for radar plot
+            if player_select and not home_swap and not away_swap:
+                if clicked_name in selected_players:
+                    selected_players.remove(clicked_name)
+                else:
+                    selected_players.append(clicked_name)
+            # selecting for bench player swap
+            elif not player_select and home_swap:
+                # print("here ")
+                # check if its in home team
+                in_team = (player_dataf["player"] == clicked_name) & (
+                    player_dataf["team"] == home
+                )
+                if clicked_name not in selected_players and in_team.any():
+                    home_selected_field = clicked_name
+                # print(home_selected_field)
 
-            # if clicked_name not in selected_players:
-            #     selected_players.append(clicked_name)
-            # print(selected_players)
+            # for selecting away players
+            elif not player_select and away_swap:
+                # print("away selection ")
+                # check if its in home team
+                in_team = (player_dataf["player"] == clicked_name) & (
+                    player_dataf["team"] == away
+                )
+                if clicked_name not in selected_players and in_team.any():
+                    away_selected_field = clicked_name
+                # print(away_selected_field)
 
+        # print("click", click_data)
+        # print("swap", swap_home_but)
+
+        # players changed make them null so we update in field
+        if (
+            triggered_input_id == "home-dropdown"
+            or triggered_input_id == "away-dropdown"
+            or triggered_input_id == "home-formation"
+            or triggered_input_id == "away-formation"
+        ):
+            # print("made it none ")
+            # print(triggered_input_id)
+            player_dataf = None
+            home_bench = None
+            away_bench = None
+
+        if triggered_input_id == "home-swap_players":
+            if home_selected_bench is not None and home_selected_field is not None:
+                player_dataf, home_bench = swap_players(
+                    home_selected_field,
+                    home_selected_bench,
+                    home_bench=home_bench,
+                    player_dataf=player_dataf,
+                )
+                home_selected_bench = None
+                home_selected_field = None
+
+        if triggered_input_id == "away-swap_players":
+            # print("Entered here ")
+            if away_selected_bench is not None and away_selected_field is not None:
+                player_dataf, away_bench = swap_players(
+                    away_selected_field,
+                    away_selected_bench,
+                    home_bench=away_bench,
+                    player_dataf=player_dataf,
+                )
+                away_selected_bench = None
+                away_selected_field = None
+
+        # update field with globals
         player_pos, player_df, home_t, away_t = field.positionPlayer(
-            home, away, home_form, away_from, selected_players=selected_players
+            home,
+            away,
+            home_form,
+            away_from,
+            selected_players=selected_players,
+            home_field_pl=home_selected_field,
+            away_field_pl=away_selected_field,
+            df_concat=player_dataf,
+            home_table=home_bench,
+            away_table=away_bench,
         )
 
+        player_dataf = player_df
+
         global all_players
-        all_players = player_df["player"].unique()
+        # all_players = player_df["player"].unique()
+        all_players = player_dataf["player"].unique()
+
         # for tables
-        global home_bench
+
         home_bench = home_t
-        global away_bench
+
         away_bench = away_t
         # print(home_bench)
         # update field
@@ -430,11 +549,16 @@ if __name__ == "__main__":
         [
             Input("home-dropdown", "value"),  # home team
             Input("away-dropdown", "value"),  # away team
+            Input("home-formation", "value"),
+            Input("away-formation", "value"),
             Input("team-plot-dropdown", "value"),  # feature selection
             Input("team-plot-store", "data"),
+            Input("home-swap_players", "n_clicks"),
+            Input("away-swap_players", "n_clicks"),
         ],
     )
-    def update_team_plot(home_team, away_team, features, stored_data_transfer):
+    def update_team_plot(home_team, away_team, features, stored_data_transfer,swap_home,
+        swap_away):
         # delay needed in order to ensure that the filed is updated
         time.sleep(1)
 
@@ -494,9 +618,10 @@ if __name__ == "__main__":
         [
             Input("home-dropdown", "value"),
             Input("home-formation", "value"),
+            Input("home-swap_players", "n_clicks"),
         ],
     )
-    def update_table(home_drop, home_form):
+    def update_table(home_drop, home_form, swap):
         # dealy needed in order to ensure that the filed is updated
         time.sleep(1)
         # print(home_bench.columns)
@@ -509,11 +634,18 @@ if __name__ == "__main__":
         ],
     )
     def update_graph_home(active_cell):
+        global home_selected_bench
         # print("triggereed")
         if active_cell:
             # print("inside")
             cell_data = home_bench.iloc[active_cell["row"]][active_cell["column_id"]]
-            print(f'Data: "{cell_data}" from table cell: {active_cell}')
+            # print(f'Data: "{cell_data}" from table cell: {active_cell}')
+            home_selected_bench = cell_data
+            if not home_swap:
+                # print("Added from home bench")
+                selected_players.append(cell_data)
+            # print("home bench ", home_selected_bench)
+
             # return f'Data: "{cell_data}" from table cell: {active_cell}'
         # return "Click the Players to Swap"
 
@@ -524,10 +656,12 @@ if __name__ == "__main__":
         [
             Input("away-dropdown", "value"),
             Input("away-formation", "value"),
+            Input("away-swap_players", "n_clicks"),
         ],
     )
-    def update_table(away_drop, away_from):
+    def update_table(away_drop, away_from, swap_away):
         # dealy needed in order to ensure that the filed is updated
+
         time.sleep(1)
         return away_table.plot_table(away_bench)
 
@@ -539,11 +673,69 @@ if __name__ == "__main__":
     )
     def update_graph_away(active_cell):
         # print("triggereed")
+        global away_selected_bench
         if active_cell:
             # print("inside")
             cell_data = away_bench.iloc[active_cell["row"]][active_cell["column_id"]]
-            print(f'Data: "{cell_data}" from table cell: {active_cell}')
+            away_selected_bench = cell_data
+
+            # add to radar plot from away bench
+            if not away_swap:
+                # print("Added from bench")
+                selected_players.append(cell_data)
+
+            # print(f'Data: "{cell_data}" from table cell: {active_cell}')
             # return f'Data: "{cell_data}" from table cell: {active_cell}'
         # return "Click the Players to Swap"
+
+    ########################## Swapping bench players #####################
+    @app.callback(
+        Output("home-swap", "children"),
+        [Input("home-swap", "n_clicks")],
+    )
+    def update_output(n_clicks):
+        # global used for player selection
+        global home_swap
+        global home_selected_bench
+        global home_selected_field
+
+        if n_clicks % 2 == 1:
+            new_label = "Reset"
+            home_swap = True
+            return new_label
+        else:
+            home_swap = False
+            # open if you want to update it
+            home_selected_field = None
+            new_label = "Select"
+            return new_label
+
+    @app.callback(
+        Output("away-swap", "children"),
+        [Input("away-swap", "n_clicks")],
+    )
+    def update_output(n_clicks):
+        # global used for player selection
+        global away_swap
+        global away_selected_bench
+        global away_selected_field
+
+        if n_clicks % 2 == 1:
+            new_label = "Reset"
+            away_swap = True
+            return new_label
+        else:
+            away_swap = False
+            # open if you want to update it
+            away_selected_field = None
+            new_label = "Select"
+            return new_label
+
+        # Callback to update the content based on the selected tab
+
+    @app.callback(Output("hidden-div", "children"), [Input("my-tabs", "value")])
+    def update_output(selected_tab):
+        print("tab: ", selected_tab)
+        return f"The selected category is: {selected_tab}"
 
     app.run_server(debug=False, dev_tools_ui=False)
