@@ -549,8 +549,8 @@ if __name__ == "__main__":
         [
             Input("home-dropdown", "value"),  # home team
             Input("away-dropdown", "value"),  # away team
-            Input("home-formation", "value"),
-            Input("away-formation", "value"),
+            #Input("home-formation", "value"),
+            #Input("away-formation", "value"),
             Input("team-plot-dropdown", "value"),  # feature selection
             Input("team-plot-store", "data"),
             Input("home-swap_players", "n_clicks"),
