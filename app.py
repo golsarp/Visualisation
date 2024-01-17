@@ -26,6 +26,8 @@ from dash.dependencies import Input, Output, State
 import pandas as pd
 
 if __name__ == "__main__":
+    selected_players_team_plot_field = []
+
     global_features = ["dribbles_completed", "shots_on_target"]
     # clicked players, initially set to some players
     selected_players = ["Cristiano Ronaldo", "Aaron Ramsey", "Abdelhamid Sabiri"]
@@ -480,7 +482,7 @@ if __name__ == "__main__":
         if stored_data:
             # Check if the teams in stored_data are the same as the input teams
             stored_teams = {segment.split('|')[0] for segment in stored_data}
-            if home_team not in stored_teams or away_team not in stored_teams:
+            if any(team not in [home_team, away_team] for team in stored_teams):
                 return []
 
         # TODO: remove players from stored_data if they are not in selected_players_team_plot_field. Select players
@@ -561,11 +563,11 @@ if __name__ == "__main__":
             Input("away-swap_players", "n_clicks"),
         ],
     )
-    def update_team_plot(home_team, away_team, home_formation, away_formation,
-                         features, stored_data_transfer,swap_home, swap_away):
+    def update_team_plot(home_team, away_team,home_form,away_from, features, stored_data_transfer,swap_home,
+        swap_away):
         # delay needed in order to ensure that the filed is updated
         time.sleep(1)
-
+        print("players ", selected_players_team_plot_field )
         # TODO: deselect selection for features which are no longer used (use optional callback output)
 
         global sorted_features
@@ -611,6 +613,7 @@ if __name__ == "__main__":
             updated_figure["data"][idx].update(trace)
 
         return updated_figure
+
 
     # bench for home
 
