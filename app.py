@@ -28,6 +28,8 @@ import pandas as pd
 if __name__ == "__main__":
     selected_players_team_plot_field = []
 
+    bar_chart_teams = ["Australia", "Wales"]
+
     global_features = ["dribbles_completed", "shots_on_target"]
     # clicked players, initially set to some players
     selected_players = ["Cristiano Ronaldo", "Aaron Ramsey", "Abdelhamid Sabiri"]
@@ -474,16 +476,21 @@ if __name__ == "__main__":
         Input("team-plot-dropdown", "value"),
     )
     def store_click_data(click_data, stored_data, home_team, away_team, features):
-        # if no point has been clicked yet or the teams have changed, initialize an empty list
-        if click_data is None:
+
+        # # check if stored data has values
+        # if stored_data:
+
+        global bar_chart_teams
+
+        if home_team != bar_chart_teams[0] or away_team != bar_chart_teams[1]:
+            bar_chart_teams = [home_team, away_team]
             return []
 
-        # check if stored data has values
-        if stored_data:
+
             # Check if the teams in stored_data are the same as the input teams
-            stored_teams = {segment.split('|')[0] for segment in stored_data}
-            if any(team not in [home_team, away_team] for team in stored_teams):
-                return []
+            # stored_teams = {segment.split('|')[0] for segment in stored_data}
+            # if any(team not in [home_team, away_team] for team in stored_teams):
+            #     return []
 
         # TODO: remove players from stored_data if they are not in selected_players_team_plot_field. Select players
         #  in all features if they have been selected in selected_players_team_plot_field
@@ -494,14 +501,24 @@ if __name__ == "__main__":
             global_features = features
             return []
 
+        # if no point has been clicked yet, initialize an empty list
+        if click_data is None:
+            return []
+
         global sorted_features
 
         # which point has been clicked?
         clicked_point = click_data["points"][0]["pointIndex"]
         clicked_team_index = click_data["points"][0]["curveNumber"]
 
+        plot_teams = [home_team, away_team]
+
+        plot_teams.sort()
+
+        team_name = plot_teams[clicked_team_index]
+
         # determine the team name based on the clicked_team_index
-        team_name = home_team if clicked_team_index == 0 else away_team
+        # team_name = home_team if clicked_team_index == 0 else away_team
 
         if clicked_point < 11:
             stack_index = clicked_point
@@ -580,6 +597,8 @@ if __name__ == "__main__":
         traces = updated_figure["data"]
 
         playing_teams = [home_team, away_team]
+
+        playing_teams.sort()
 
         stored_data = {}
         for segment in stored_data_transfer:

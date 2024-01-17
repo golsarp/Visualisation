@@ -56,7 +56,7 @@ class Bar(html.Div):
                 )
 
         sorted_plot_df = plot_df.sort_values(
-            ["feature", "value"], ascending=[True, False]
+            ["team", "feature", "value"], ascending=[True, True, False]
         )
         # print(sorted_plot_df)
         self.fig = px.bar(
