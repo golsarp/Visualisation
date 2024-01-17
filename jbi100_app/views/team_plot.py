@@ -68,6 +68,7 @@ class Bar(html.Div):
             hover_name="name",
             hover_data={"team": False, "feature": False, "value": True},
             title="Team plot",
+            custom_data=['name']
         )
 
         self.fig.update_layout(

@@ -28,6 +28,8 @@ import pandas as pd
 if __name__ == "__main__":
     selected_players_team_plot_field = []
 
+    sorted_features = []
+
     bar_chart_teams = ["Australia", "Wales"]
 
     global_features = ["dribbles_completed", "shots_on_target"]
@@ -447,6 +449,7 @@ if __name__ == "__main__":
         away_bench = away_t
         # print(home_bench)
         # update field
+        time.sleep(0.5)
         return player_pos
 
     @app.callback(
@@ -477,26 +480,16 @@ if __name__ == "__main__":
     )
     def store_click_data(click_data, stored_data, home_team, away_team, features):
 
-        # # check if stored data has values
-        # if stored_data:
-
         global bar_chart_teams
 
+        # check if the teams have changed
         if home_team != bar_chart_teams[0] or away_team != bar_chart_teams[1]:
             bar_chart_teams = [home_team, away_team]
             return []
 
-
-            # Check if the teams in stored_data are the same as the input teams
-            # stored_teams = {segment.split('|')[0] for segment in stored_data}
-            # if any(team not in [home_team, away_team] for team in stored_teams):
-            #     return []
-
-        # TODO: remove players from stored_data if they are not in selected_players_team_plot_field. Select players
-        #  in all features if they have been selected in selected_players_team_plot_field
-
         global global_features
 
+        # check if the features have changed
         if len(features) != len(global_features):
             global_features = features
             return []
@@ -507,19 +500,18 @@ if __name__ == "__main__":
 
         global sorted_features
 
-        # which point has been clicked?
+        # check which segment has been clicked
         clicked_point = click_data["points"][0]["pointIndex"]
+
+        # check which team has been clicked
         clicked_team_index = click_data["points"][0]["curveNumber"]
 
+        # get the team name of the clicked segment
         plot_teams = [home_team, away_team]
-
         plot_teams.sort()
-
         team_name = plot_teams[clicked_team_index]
 
-        # determine the team name based on the clicked_team_index
-        # team_name = home_team if clicked_team_index == 0 else away_team
-
+        # determine the player and feature which has been clicked
         if clicked_point < 11:
             stack_index = clicked_point
             feature_index = 0
@@ -533,17 +525,20 @@ if __name__ == "__main__":
         # get the dataframe of players on the field.
         sorted_plot_df = team_plot.get_dataframe()
 
+        # filter the dataframe based on the team and feature
         filtered_df = sorted_plot_df[(sorted_plot_df['team'] == team_name)
                                      & (sorted_plot_df['feature'] == feature_name)]
+
         # Reset the index of the dataframe
         filtered_df = filtered_df.reset_index(drop=True)
+
         # Get the player's name at the feature_index
         player_name = filtered_df.loc[stack_index, 'name']
 
         # create a unique key for the clicked segment
         clicked_segment = f"{team_name}|{feature_name}|{stack_index}|{player_name}"
 
-        # if the clicked segment is already selected, deselect it
+        # if the clicked segment in stored_data is already selected, deselect it
         if clicked_segment in stored_data:
             stored_data.remove(clicked_segment)
         # otherwise, select the clicked segment
@@ -552,9 +547,10 @@ if __name__ == "__main__":
 
         global selected_players_team_plot_field
 
+        # Reset the selected_players_team_plot_field
         selected_players_team_plot_field = []
 
-        # Iterate over each segment in stored_data
+        # Iterate over each segment in stored_data to extract the player name
         for segment in stored_data:
             # Split the segment string into parts
             parts = segment.split("|")
@@ -578,14 +574,13 @@ if __name__ == "__main__":
             Input("team-plot-store", "data"),
             Input("home-swap_players", "n_clicks"),
             Input("away-swap_players", "n_clicks"),
+            Input("radar-button", "n_clicks"),
         ],
     )
-    def update_team_plot(home_team, away_team,home_form,away_from, features, stored_data_transfer,swap_home,
-        swap_away):
+    def update_team_plot(home_team, away_team,home_form, away_from, features, stored_data_transfer,swap_home,
+        swap_away, highlight_button):
         # delay needed in order to ensure that the filed is updated
         time.sleep(1)
-        print("players ", selected_players_team_plot_field )
-        # TODO: deselect selection for features which are no longer used (use optional callback output)
 
         global sorted_features
         sorted_features = sorted(features)
@@ -595,6 +590,11 @@ if __name__ == "__main__":
 
         # extract traces
         traces = updated_figure["data"]
+
+        global selected_players
+
+        # # create a color mapping for the players
+        # color_mapping = {player: 'orange' for player in selected_players}
 
         playing_teams = [home_team, away_team]
 
@@ -622,6 +622,26 @@ if __name__ == "__main__":
 
         # loop over all traces
         for idx, trace in enumerate(traces):
+
+            # get the player's name from the trace's custom data
+            player_names = [data[0] for data in trace['customdata']]
+            team_names = [data[1] for data in trace['customdata']]
+
+            # # create a sorted list of unique team names
+            # unique_teams = sorted(list(set(team_names)))
+            #
+            # # create a list of team indices for each bar in the trace
+            # team_indices = [unique_teams.index(team_name) for team_name in team_names]
+
+            team_indices = [playing_teams.index(team_name) for team_name in team_names]
+
+            # create a list of colors for each bar in the trace
+            colors = ['orange' if player_name in selected_players else ('blue' if int(team_index) == 0 else 'red') for
+                      player_name, team_index in zip(player_names, team_indices)]
+
+            # update the trace's color
+            trace['marker']['color'] = colors
+
             # update selection state of the clicked point in the trace dict
             if str(idx) in stored_data:
                 trace.update({"selectedpoints": stored_data[str(idx)]})
