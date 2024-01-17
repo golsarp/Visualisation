@@ -85,9 +85,6 @@ class Historic(html.Div):
         )
         unique_years.sort()
 
-        # Calculate the domain for each x-axis
-        domain_size = 1.0 / len(unique_years)
-
         # Define a custom color scale function
         def get_color(is_home_team, is_home, is_winner):
             # Define the base color for home and away
@@ -217,48 +214,67 @@ class Historic(html.Div):
                     legendgroup="Away Scores Team 2",
                 )
             )
+        ordered_categories = []
+        tickvals = []
+        ticktext = []
+        for i, year in enumerate(unique_years):
+            ordered_categories.append(f"{team1} ({year})")
+            ordered_categories.append(f"{team2} ({year})")
+            tickvals.append(i * 2 + 0.5)
+            ticktext.append(str(year))
 
-        # Create a dictionary for each x-axis
+        # A dictionary for each x-axis
         xaxes = {
             "xaxis": dict(
                 domain=[0, 1],
                 anchor="y",
                 showticklabels=True,
                 fixedrange=True,
+                tickmode="array",
+                tickvals=tickvals,
+                ticktext=ticktext,
+                # tickangle=45,
+                categoryorder="array",
+                categoryarray=ordered_categories,
             )
         }
 
         # Annotation for the x-axis title
         annotations = [
             dict(
-                x=0.5,  # x position of the annotation (center of the plot)
-                y=-0.1,  # y position of the annotation (below the tick labels)
-                text="Team (Year)",  # annotation text
-                showarrow=False,  # hide the arrow
-                xref="paper",  # x position is relative to the width of the plot
-                yref="paper",  # y position is relative to the height of the plot
-                font=dict(size=15),  # font size
-                xanchor="center",  # center the annotation on the x position
-                yanchor="top",  # align the top of the annotation with the y position
+                x=0.5,
+                y=-0.1,
+                text="",
+                showarrow=False,
+                xref="paper",
+                yref="paper",
+                font=dict(size=15),
+                xanchor="center",
+                yanchor="top",
             )
         ]
 
-        # Customize layout
+        # Custom layout
         self.figure.update_layout(
             barmode="stack",
             title=f"{team1} and {team2} Historical Scores by Year",
             yaxis_title="Score",
             yaxis=dict(fixedrange=True),
             annotations=annotations,
-            margin=dict(
-                l=50, r=50, t=50, b=50
-            ),  # Adjust the values as needed for padding
+            margin=dict(l=50, r=50, t=50, b=50),
             legend=dict(
-                y=1, yanchor="auto", x=1, xanchor="auto", bgcolor="rgba(0,0,0,0)"
+                y=1,
+                yanchor="auto",
+                x=1,
+                xanchor="auto",
+                bgcolor="rgba(0,0,0,0)",
+                font=dict(size=10),
+                traceorder="normal",
+                itemsizing="constant",
             ),
             **xaxes,
             xaxis_rangeslider_visible=True,
-            # xaxis_title="Team (Year)",  # Add a title for the x-axis
+            xaxis_title="Team (Year)",  # Title for the x-axis
         )
 
         return self.figure
