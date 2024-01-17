@@ -70,7 +70,9 @@ if __name__ == "__main__":
     # first 5 teams initially
     # there are 32 teams, idk how to display them nicely
     df = pd.read_csv(player_poss_path)
-    teams = df["team"].unique()[:10]
+    teams = df["team"].unique()[:20]
+
+    l = ["a", "b"]
 
     # team plot
     team_plot = Bar("Team-plot", selected_players, selected_teams, features)
@@ -240,7 +242,7 @@ if __name__ == "__main__":
                         value="tab1",
                         children=[
                             dcc.Tab(label="Category 1", value="tab1"),
-                            dcc.Tab(label="Category 2", value="tab2"),
+                            dcc.Tab(label="Category 2", value=l),
                             dcc.Tab(label="Category 3", value="tab3"),
                         ],
                         style={
@@ -249,6 +251,7 @@ if __name__ == "__main__":
                             "padding": "5px",  # Adjust padding
                         },
                     ),
+                    html.Div(id="hidden-div", style={"display": "none"}),
                 ],
             ),
             html.Div(
@@ -429,7 +432,9 @@ if __name__ == "__main__":
         player_dataf = player_df
 
         global all_players
-        all_players = player_df["player"].unique()
+        # all_players = player_df["player"].unique()
+        all_players = player_dataf["player"].unique()
+
         # for tables
 
         home_bench = home_t
@@ -490,15 +495,28 @@ if __name__ == "__main__":
         [
             Input("home-dropdown", "value"),  # home team
             Input("away-dropdown", "value"),  # away team
+            Input("home-formation", "value"),
+            Input("away-formation", "value"),
             Input("team-plot-dropdown", "value"),  # feature selection
             Input("team-plot-store", "data"),
+            Input("home-swap_players", "n_clicks"),
+            Input("away-swap_players", "n_clicks"),
         ],  # click data
         State(team_plot.html_id, "figure"),
     )
-    def update_team_plot(home_team, away_team, features, stored_data, current_figure):
+    def update_team_plot(
+        home_team,
+        away_team,
+        home_form,
+        away_form,
+        features,
+        stored_data,
+        current_figure,
+        swap_home,
+        swap_away,
+    ):
         # delay needed in order to ensure that the filed is updated
         time.sleep(1)
-
         # update the figure with the new data
         updated_figure = team_plot.plot_bar(features, all_players)
 
@@ -558,6 +576,9 @@ if __name__ == "__main__":
             cell_data = home_bench.iloc[active_cell["row"]][active_cell["column_id"]]
             # print(f'Data: "{cell_data}" from table cell: {active_cell}')
             home_selected_bench = cell_data
+            if not home_swap:
+                # print("Added from home bench")
+                selected_players.append(cell_data)
             # print("home bench ", home_selected_bench)
 
             # return f'Data: "{cell_data}" from table cell: {active_cell}'
@@ -592,6 +613,12 @@ if __name__ == "__main__":
             # print("inside")
             cell_data = away_bench.iloc[active_cell["row"]][active_cell["column_id"]]
             away_selected_bench = cell_data
+
+            # add to radar plot from away bench
+            if not away_swap:
+                # print("Added from bench")
+                selected_players.append(cell_data)
+
             # print(f'Data: "{cell_data}" from table cell: {active_cell}')
             # return f'Data: "{cell_data}" from table cell: {active_cell}'
         # return "Click the Players to Swap"
@@ -638,5 +665,12 @@ if __name__ == "__main__":
             away_selected_field = None
             new_label = "Select"
             return new_label
+
+        # Callback to update the content based on the selected tab
+
+    @app.callback(Output("hidden-div", "children"), [Input("my-tabs", "value")])
+    def update_output(selected_tab):
+        print("tab: ", selected_tab)
+        return f"The selected category is: {selected_tab}"
 
     app.run_server(debug=False, dev_tools_ui=False)

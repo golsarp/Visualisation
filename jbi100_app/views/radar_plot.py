@@ -63,12 +63,14 @@ class Radar(html.Div):
             "Medium",
             "Shots",
         ]
+        # trace_color = ["blue", "red", "green"]
 
         for i in range(len(player_list)):
             self.fig.add_trace(
                 go.Scatterpolar(
                     r=r_extend[i],
                     theta=categories,
+                    # line=dict(color=trace_color[i]),
                     # filling option
                     # fill="toself",
                     name=player_list[i],
