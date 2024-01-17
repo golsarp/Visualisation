@@ -490,6 +490,7 @@ if __name__ == "__main__":
 
         return stored_data
 
+
     @app.callback(
         Output(team_plot.html_id, "figure"),
         [
