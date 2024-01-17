@@ -479,7 +479,7 @@ if __name__ == "__main__":
         # check if stored data has values
         if stored_data:
             # Check if the teams in stored_data are the same as the input teams
-            stored_teams = {segment.split("|")[0] for segment in stored_data}
+            stored_teams = {segment.split('|')[0] for segment in stored_data}
             if home_team not in stored_teams or away_team not in stored_teams:
                 return []
 
@@ -514,14 +514,12 @@ if __name__ == "__main__":
         # get the dataframe of players on the field.
         sorted_plot_df = team_plot.get_dataframe()
 
-        filtered_df = sorted_plot_df[
-            (sorted_plot_df["team"] == team_name)
-            & (sorted_plot_df["feature"] == feature_name)
-        ]
+        filtered_df = sorted_plot_df[(sorted_plot_df['team'] == team_name)
+                                     & (sorted_plot_df['feature'] == feature_name)]
         # Reset the index of the dataframe
         filtered_df = filtered_df.reset_index(drop=True)
         # Get the player's name at the feature_index
-        player_name = filtered_df.loc[stack_index, "name"]
+        player_name = filtered_df.loc[stack_index, 'name']
 
         # create a unique key for the clicked segment
         clicked_segment = f"{team_name}|{feature_name}|{stack_index}|{player_name}"
@@ -555,17 +553,16 @@ if __name__ == "__main__":
         [
             Input("home-dropdown", "value"),  # home team
             Input("away-dropdown", "value"),  # away team
-            # Input("home-formation", "value"),
-            # Input("away-formation", "value"),
+            Input("home-formation", "value"),
+            Input("away-formation", "value"),
             State("team-plot-dropdown", "value"),  # feature selection
             Input("team-plot-store", "data"),
             Input("home-swap_players", "n_clicks"),
             Input("away-swap_players", "n_clicks"),
         ],
     )
-    def update_team_plot(
-        home_team, away_team, features, stored_data_transfer, swap_home, swap_away
-    ):
+    def update_team_plot(home_team, away_team, home_formation, away_formation,
+                         features, stored_data_transfer,swap_home, swap_away):
         # delay needed in order to ensure that the filed is updated
         time.sleep(1)
 
@@ -584,7 +581,7 @@ if __name__ == "__main__":
 
         stored_data = {}
         for segment in stored_data_transfer:
-            team_name, feature_name, stack_index, _ = segment.split("|")
+            team_name, feature_name, stack_index, _ = segment.split('|')
             team_index = str(playing_teams.index(team_name))
             feature_index = sorted_features.index(feature_name)
             clicked_point = feature_index * 11 + int(stack_index)
