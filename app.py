@@ -575,10 +575,11 @@ if __name__ == "__main__":
             Input("home-swap_players", "n_clicks"),
             Input("away-swap_players", "n_clicks"),
             Input("radar-button", "n_clicks"),
+            Input("select-button", "n_clicks"),
         ],
     )
     def update_team_plot(home_team, away_team,home_form, away_from, features, stored_data_transfer,swap_home,
-        swap_away, highlight_button):
+        swap_away, highlight_button, reset_button):
         # delay needed in order to ensure that the filed is updated
         time.sleep(1)
 
