@@ -258,7 +258,7 @@ class Historic(html.Div):
             ),
             **xaxes,
             xaxis_rangeslider_visible=True,
-            xaxis_title="Team (Year)",  # Add a title for the x-axis
+            # xaxis_title="Team (Year)",  # Add a title for the x-axis
         )
 
         return self.figure
