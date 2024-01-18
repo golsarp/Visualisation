@@ -86,10 +86,14 @@ class Field(html.Div):
         df_concat,
         home_table,
         away_table,
-        colors
+        colors,
+        bar_players,
     ):
         # print("selected home bench: ", home_bench_pl)
         # print("selected home field: ", home_field_pl)
+
+        print(bar_players)
+
         if df_concat is None:
             # print("entered INIT ")
             df_home = self.process_df(home, True)
@@ -168,7 +172,7 @@ class Field(html.Div):
         
 
     # 0 home color , 1 away color , 2 field color 
-    #  3 home bench color,  4 away bench color , 5 selected bench color, 
+    #  3 home bench color,  4 away bench color , 5 selected bench color,
 
         df_concat["color"] = df_concat.apply(
             lambda row: colors[7]
@@ -177,6 +181,8 @@ class Field(html.Div):
             if row["player"] == home_field_pl
             else colors[5]
             if row["player"] in selected_players
+            else colors[14]
+            if row["player"] in bar_players
             else colors[0]
             if row["team"] == home
             else colors[1]
@@ -210,6 +216,7 @@ class Field(html.Div):
             colors[3]: colors[3],
             colors[4]: colors[4],
             colors[7]: colors[7],
+            colors[14]: colors[14],
         }
         self.fig = px.scatter(
             df_concat,

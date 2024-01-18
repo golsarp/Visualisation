@@ -21,11 +21,11 @@ class Bar(html.Div):
     def plot_bar(self, categories, names, color_list, home_team, away_team, percent_df=None):
 
         column_name_to_alias = {
-            "dribbles_completed": "Dribbles Completed",
-            "passes_short": "Short Passes",
-            "passes_medium": "Medium Passes",
-            "passes_long": "Long Passes",
-            "shots_on_target": "Shots on Target",
+            "dribbles_completed": "Dribbles",
+            "passes_short": "Short",
+            "passes_medium": "Medium",
+            "passes_long": "Long",
+            "shots_on_target": "Shots",
             "goals": "Goals",
         }
 
@@ -90,16 +90,17 @@ class Bar(html.Div):
                 barmode="group",
                 hover_name="name",
                 hover_data={"team": False, "feature": False, "value": True},
-                title="Team plot",
+                title="Team passes & Shots",
                 custom_data=['name'],
-                color_discrete_map=color_mapping
+                color_discrete_map=color_mapping,
+                height=400
             )
 
             self.fig.update_layout(
                 legend={"title": "Teams"},
                 xaxis_title=None,
                 yaxis_title="Occurrences",
-                margin=dict(t=40),
+                margin=dict(l=20, r=20, t=40, b=0),
                 clickmode="event",
             )
 
@@ -116,16 +117,17 @@ class Bar(html.Div):
                 barmode="group",
                 hover_name="name",
                 hover_data={"team": False, "feature": False, "value": True},
-                title="Team plot",
+                title="Team passes & Shots",
                 custom_data=['name'],
-                color_discrete_map=color_mapping
+                color_discrete_map=color_mapping,
+                height=400
             )
 
             self.fig.update_layout(
                 legend={"title": "Teams"},
                 xaxis_title=None,
                 yaxis_title="Percentage",
-                margin=dict(t=40),
+                margin=dict(l=20, r=20, t=40, b=20),
                 clickmode="event",
             )
 

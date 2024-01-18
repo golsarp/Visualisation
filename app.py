@@ -107,11 +107,11 @@ if __name__ == "__main__":
     team_plot = Bar("Team-plot", selected_players, selected_teams, features)
 
     column_name_to_alias = {
-        "dribbles_completed": "Dribbles Completed",
-        "passes_short": "Short Passes",
-        "passes_medium": "Medium Passes",
-        "passes_long": "Long Passes",
-        "shots_on_target": "Shots on Target",
+        "dribbles_completed": "Dribbles",
+        "passes_short": "Short",
+        "passes_medium": "Medium",
+        "passes_long": "Long",
+        "shots_on_target": "Shots",
         "goals": "Goals",
     }
 
@@ -284,10 +284,9 @@ if __name__ == "__main__":
                         value="tab1",
                         children=[
                             dcc.Tab(label="Normal Colors", value="tab1"),
-                            dcc.Tab(label="Red-Green color Blind", value="tab2"),
+                            dcc.Tab(label="Deuteranamoly", value="tab2"),
 
-
-                            dcc.Tab(label="Random", value="tab3"),
+                            dcc.Tab(label="Protanopia", value="tab3"),
                         ],
                         style={
                             "fontSize": 12,  # Adjust the font size
@@ -358,7 +357,8 @@ if __name__ == "__main__":
             Input("select-button", "n_clicks"),
             Input("home-swap_players", "n_clicks"),
             Input("away-swap_players", "n_clicks"),
-            Input("my-tabs", "value")
+            Input("my-tabs", "value"),
+            Input("team-plot-store", "data"),
         ],
     )
     def update_field(
@@ -371,7 +371,8 @@ if __name__ == "__main__":
         select_button,
         swap_home_but,
         swap_away_but,
-        color
+        color,
+        bar,
     ):
 
         time.sleep(0.4)
@@ -472,7 +473,8 @@ if __name__ == "__main__":
             df_concat=player_dataf,
             home_table=home_bench,
             away_table=away_bench,
-            colors=app_color
+            colors=app_color,
+            bar_players=selected_players_team_plot_field,
         )
 
         player_dataf = player_df
@@ -560,11 +562,11 @@ if __name__ == "__main__":
             feature_index = clicked_point // 11
 
         feature_alias = {
-            "dribbles_completed": "Dribbles Completed",
-            "passes_short": "Short Passes",
-            "passes_medium": "Medium Passes",
-            "passes_long": "Long Passes",
-            "shots_on_target": "Shots on Target",
+            "dribbles_completed": "Dribbles",
+            "passes_short": "Short",
+            "passes_medium": "Medium",
+            "passes_long": "Long",
+            "shots_on_target": "Shots",
             "goals": "Goals",
         }
 
@@ -721,11 +723,11 @@ if __name__ == "__main__":
         playing_teams.sort()
 
         feature_alias = {
-            "Dribbles Completed": "dribbles_completed",
-            "Short Passes": "passes_short",
-            "Medium Passes": "passes_medium",
-            "Long Passes": "passes_long",
-            "Shots on Target": "shots_on_target",
+            "Dribbles": "dribbles_completed",
+            "Short": "passes_short",
+            "Medium": "passes_medium",
+            "Long": "passes_long",
+            "Shots": "shots_on_target",
             "Goals": "goals",
         }
 
