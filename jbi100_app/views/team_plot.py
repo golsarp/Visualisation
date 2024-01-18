@@ -18,66 +18,92 @@ class Bar(html.Div):
             children=[dcc.Graph(id=self.html_id)],
         )
 
-    def plot_bar(self, categories, names):
-        df_poss, df_shoot, df_pass = get_datasets()
+    def plot_bar(self, categories, names, percent_df=None):
 
-        attributes = {
-            "dribbles_completed": df_poss,
-            "passes_short": df_pass,
-            "passes_long": df_pass,
-            "passes_medium": df_pass,
-            "shots_on_target": df_shoot,
-        }
+        if percent_df is None:
 
-        plot_df = pd.DataFrame(columns=["name", "team", "feature", "value"])
+            df_poss, df_shoot, df_pass = get_datasets()
 
-        for player in names:
-            player_team = df_poss[df_poss["player"] == player]["team"].values[0]
+            attributes = {
+                "dribbles_completed": df_poss,
+                "passes_short": df_pass,
+                "passes_long": df_pass,
+                "passes_medium": df_pass,
+                "shots_on_target": df_shoot,
+            }
 
-            for feature in categories:
-                feature_df = attributes[feature]
+            plot_df = pd.DataFrame(columns=["name", "team", "feature", "value"])
 
-                player_row = feature_df.loc[feature_df["player"] == player]
+            for player in names:
+                player_team = df_poss[df_poss["player"] == player]["team"].values[0]
 
-                player_value = player_row[feature].values[0]
+                for feature in categories:
+                    feature_df = attributes[feature]
 
-                if np.isnan(player_value):
-                    player_value = 0
+                    player_row = feature_df.loc[feature_df["player"] == player]
 
-                new_row = {
-                    "name": player,
-                    "team": player_team,
-                    "feature": feature,
-                    "value": player_value,
-                }
+                    player_value = player_row[feature].values[0]
 
-                plot_df = pd.concat(
-                    [plot_df, pd.DataFrame(new_row, index=[0])], ignore_index=True
-                )
+                    if np.isnan(player_value):
+                        player_value = 0
 
-        sorted_plot_df = plot_df.sort_values(
-            ["team", "feature", "value"], ascending=[True, True, False]
-        )
-        # print(sorted_plot_df)
-        self.fig = px.bar(
-            sorted_plot_df,
-            x="feature",
-            y="value",
-            color="team",
-            barmode="group",
-            hover_name="name",
-            hover_data={"team": False, "feature": False, "value": True},
-            title="Team plot",
-            custom_data=['name']
-        )
+                    new_row = {
+                        "name": player,
+                        "team": player_team,
+                        "feature": feature,
+                        "value": player_value,
+                    }
 
-        self.fig.update_layout(
-            legend={"title": "Teams"},
-            xaxis_title=None,
-            yaxis_title="Nr of times",
-            margin=dict(t=40),
-            clickmode="event",
-        )
+                    plot_df = pd.concat(
+                        [plot_df, pd.DataFrame(new_row, index=[0])], ignore_index=True
+                    )
+
+            sorted_plot_df = plot_df.sort_values(
+                ["team", "feature", "value"], ascending=[True, True, False]
+            )
+
+            self.fig = px.bar(
+                sorted_plot_df,
+                x="feature",
+                y="value",
+                color="team",
+                barmode="group",
+                hover_name="name",
+                hover_data={"team": False, "feature": False, "value": True},
+                title="Team plot",
+                custom_data=['name']
+            )
+
+            self.fig.update_layout(
+                legend={"title": "Teams"},
+                xaxis_title=None,
+                yaxis_title="Occurrences",
+                margin=dict(t=40),
+                clickmode="event",
+            )
+
+        else:
+            sorted_plot_df = percent_df
+
+            self.fig = px.bar(
+                sorted_plot_df,
+                x="feature",
+                y="value",
+                color="team",
+                barmode="group",
+                hover_name="name",
+                hover_data={"team": False, "feature": False, "value": True},
+                title="Team plot",
+                custom_data=['name']
+            )
+
+            self.fig.update_layout(
+                legend={"title": "Teams"},
+                xaxis_title=None,
+                yaxis_title="Percentage",
+                margin=dict(t=40),
+                clickmode="event",
+            )
 
         self.sorted_plot_df = sorted_plot_df
 

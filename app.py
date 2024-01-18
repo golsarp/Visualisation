@@ -28,6 +28,8 @@ import pandas as pd
 if __name__ == "__main__":
     selected_players_team_plot_field = []
 
+    sum_correlation = False
+
     sorted_features = []
 
     bar_chart_teams = ["Australia", "Wales"]
@@ -233,6 +235,7 @@ if __name__ == "__main__":
                                         id="select-button",
                                         n_clicks=0,
                                     ),
+                                    html.Button(id="sum-per", n_clicks=0),
                                 ],
                                 style={
                                     "display": "inline-block",
@@ -576,19 +579,40 @@ if __name__ == "__main__":
             Input("away-swap_players", "n_clicks"),
             Input("radar-button", "n_clicks"),
             Input("select-button", "n_clicks"),
+            Input("sum-per", "n_clicks"),
         ],
     )
     def update_team_plot(home_team, away_team, home_form, away_from, features, stored_data_transfer, swap_home,
-                         swap_away, highlight_button, reset_button):
+                         swap_away, highlight_button, reset_button, mode):
 
         # delay needed in order to ensure that the filed is updated
-        time.sleep(1)
+        time.sleep(2)
 
         global sorted_features
         sorted_features = sorted(features)
 
-        # update the figure with the new data
-        updated_figure = team_plot.plot_bar(sorted_features, all_players)
+        # Get the dataframe
+        sorted_plot_df = team_plot.get_dataframe()
+
+        if sorted_plot_df is not None and sum_correlation is True:
+            # Calculate the total value for each feature for each team
+            total_values = sorted_plot_df.groupby(['team', 'feature'])['value'].sum()
+
+            # Calculate the percentage contribution of each player for each feature
+            sorted_plot_df['percentage'] = sorted_plot_df.apply(
+                lambda row: (row['value'] / total_values[(row['team'], row['feature'])]) * 100, axis=1)
+
+            # Drop the 'value' column
+            sorted_plot_df = sorted_plot_df.drop(columns=['value'])
+
+            # Rename the 'percentage' column to 'value'
+            sorted_plot_df = sorted_plot_df.rename(columns={'percentage': 'value'})
+
+            # Update the figure with the new data
+            updated_figure = team_plot.plot_bar(sorted_features, all_players, sorted_plot_df)
+
+        else:
+            updated_figure = team_plot.plot_bar(sorted_features, all_players)
 
         # extract traces
         traces = updated_figure["data"]
@@ -646,8 +670,28 @@ if __name__ == "__main__":
 
         return updated_figure
 
+    @app.callback(
+        Output("sum-per", "children"),
+        [Input("sum-per", "n_clicks")],
+    )
+    def update_output(n_clicks):
+        # global used for player selection
+        global sum_correlation
+        # global selected_players
+
+        if n_clicks % 2 == 1:
+            new_label = "∑"
+            sum_correlation = True
+            return new_label
+        else:
+            sum_correlation = False
+            # selected_players = []
+            new_label = "%"
+            return new_label
+
 
     # bench for home
+
 
     @app.callback(
         Output("table_out_home", "children"),
