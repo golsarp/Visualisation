@@ -86,6 +86,7 @@ class Field(html.Div):
         df_concat,
         home_table,
         away_table,
+        colors
     ):
         # print("selected home bench: ", home_bench_pl)
         # print("selected home field: ", home_field_pl)
@@ -164,17 +165,21 @@ class Field(html.Div):
         #     else "Other",
         #     axis=1,
         # )
+        
+
+    # 0 home color , 1 away color , 2 field color 
+    #  3 home bench color,  4 away bench color , 5 selected bench color, 
 
         df_concat["color"] = df_concat.apply(
-            lambda row: "Purple"
+            lambda row: colors[7]
             if row["player"] == away_field_pl
-            else "Black"
+            else colors[7]
             if row["player"] == home_field_pl
-            else "Yellow"
+            else colors[5]
             if row["player"] in selected_players
-            else "Blue"
+            else colors[0]
             if row["team"] == home
-            else "Red"
+            else colors[1]
             if row["team"] == away
             else "Other",
             axis=1,
@@ -198,12 +203,13 @@ class Field(html.Div):
             # "progressive_passes_received",
         ]
         color_mapping = {
-            "Green": "green",
-            "Blue": "blue",
-            "Red": "red",
-            "Yellow": "yellow",
-            "Black": "Black",
-            "Purple": "Purple",
+            colors[2]: colors[2],
+            colors[0]: colors[0],
+            colors[1]: colors[1],
+            colors[5]: colors[5],
+            colors[3]: colors[3],
+            colors[4]: colors[4],
+            colors[7]: colors[7],
         }
         self.fig = px.scatter(
             df_concat,
@@ -217,17 +223,22 @@ class Field(html.Div):
             width=900,
             color_discrete_map=color_mapping,
         )
+
+
+
+     
+        
         self.fig.update_layout(
             # margin=dict(l=20, r=20, t=20, b=20),
             margin=dict(l=20, r=20, t=10, b=0),
             xaxis_title="",
             yaxis_title="",
-            plot_bgcolor="rgb(0, 200, 0)",
+            plot_bgcolor=colors[2],
         )
         self.fig.update_xaxes(showticklabels=False)
         self.fig.update_yaxes(showticklabels=False)
-        self.fig.update_xaxes(showgrid=True, gridcolor="rgb(0, 128, 0)")
-        self.fig.update_yaxes(showgrid=True, gridcolor="rgb(0, 128, 0)")
+        self.fig.update_xaxes(showgrid=True, gridcolor=colors[6])
+        self.fig.update_yaxes(showgrid=True, gridcolor=colors[6])
 
         # # Update hover template to exclude unwanted columns
         # hover_template = "<br>".join(

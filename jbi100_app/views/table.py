@@ -20,7 +20,7 @@ class Table(html.Div):
             ],
         )
 
-    def plot_table(self, df):
+    def plot_table(self, df,home,colors):
         # print(df.columns)
         # df["birth_year"] = 2023 - df["birth_year"]
         # new_col_names = {
@@ -28,6 +28,13 @@ class Table(html.Div):
         #     "position": "Position",
         #     "birth_year": "Age",
         # }
+        #print("colors ",colors)
+        use = None
+        if home:
+            use = colors[3]
+        else:
+            use = colors[4]
+            
 
         # df = df.rename(columns=new_col_names)
         selected_columns = ["player", "position", "age"]
@@ -40,12 +47,12 @@ class Table(html.Div):
                 # columns=new_columns,
                 data=df.to_dict("records"),
                 style_cell=dict(textAlign="left"),
-                style_header=dict(backgroundColor="paleturquoise"),
-                style_data=dict(backgroundColor="lavender"),
+                style_header=dict(backgroundColor=colors[9]),
+                style_data=dict(backgroundColor=use),
                 style_data_conditional=[
                     {
                         "if": {"column_id": col, "column_editable": False},
-                        "backgroundColor": "rgba(255, 0, 0, 0.1)",
+                        "backgroundColor": colors[8],
                         "pointer-events": "none",  # Disable clicking on non-"player" columns
                     }
                     for col in df.columns
@@ -54,7 +61,7 @@ class Table(html.Div):
                 + [
                     {
                         "if": {"column_id": "player", "state": "active"},
-                        "backgroundColor": "rgba(0, 116, 217, 0.3)",
+                        "backgroundColor": colors[7],
                     }
                 ],
                 virtualization=True,  # Enable virtualization for infinite scrolling

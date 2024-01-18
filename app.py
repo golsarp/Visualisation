@@ -19,6 +19,9 @@ from jbi100_app.config import (
     player_poss_path,
     formation,
     swap_players,
+    color_list,
+    color_red_blind,
+    color_list_random,
 )
 
 
@@ -93,9 +96,12 @@ if __name__ == "__main__":
     # first 5 teams initially
     # there are 32 teams, idk how to display them nicely
     df = pd.read_csv(player_poss_path)
-    teams = df["team"].unique()[:20]
+    teams = df["team"].unique()
+    #teams = df["team"].unique()[:20]
 
-    l = ["a", "b"]
+
+
+    app_color = color_list
 
     # team plot
     team_plot = Bar("Team-plot", selected_players, selected_teams, features)
@@ -277,9 +283,11 @@ if __name__ == "__main__":
                         id="my-tabs",
                         value="tab1",
                         children=[
-                            dcc.Tab(label="Category 1", value="tab1"),
-                            dcc.Tab(label="Category 2", value=l),
-                            dcc.Tab(label="Category 3", value="tab3"),
+                            dcc.Tab(label="Normal Colors", value="tab1"),
+                            dcc.Tab(label="Red-Green color Blind", value="tab2"),
+
+
+                            dcc.Tab(label="Random", value="tab3"),
                         ],
                         style={
                             "fontSize": 12,  # Adjust the font size
@@ -350,6 +358,7 @@ if __name__ == "__main__":
             Input("select-button", "n_clicks"),
             Input("home-swap_players", "n_clicks"),
             Input("away-swap_players", "n_clicks"),
+            Input("my-tabs", "value")
         ],
     )
     def update_field(
@@ -362,8 +371,14 @@ if __name__ == "__main__":
         select_button,
         swap_home_but,
         swap_away_but,
+        color
     ):
+
+        time.sleep(0.4)
+
         triggered_input_id = callback_context.triggered_id
+
+
         # get selected players
         global home_selected_field
         global home_selected_bench
@@ -444,7 +459,7 @@ if __name__ == "__main__":
                 )
                 away_selected_bench = None
                 away_selected_field = None
-
+        #print("app colors ",app_color)
         # update field with globals
         player_pos, player_df, home_t, away_t = field.positionPlayer(
             home,
@@ -457,6 +472,7 @@ if __name__ == "__main__":
             df_concat=player_dataf,
             home_table=home_bench,
             away_table=away_bench,
+            colors=app_color
         )
 
         player_dataf = player_df
@@ -488,10 +504,11 @@ if __name__ == "__main__":
 
     @app.callback(
         Output(historic_plot.html_id, "figure"),
-        [Input("home-dropdown", "value"), Input("away-dropdown", "value")],
+        [Input("home-dropdown", "value"), Input("away-dropdown", "value"),Input("my-tabs", "value")],
     )
-    def update_historic(home, away):
-        return historic_plot.build_historic(home, away)
+    def update_historic(home, away,color):
+        time.sleep(0.2)
+        return historic_plot.build_historic(home, away,app_color)
 
     @app.callback(
         Output("team-plot-store", "data"),
@@ -611,11 +628,14 @@ if __name__ == "__main__":
             Input("radar-button", "n_clicks"),
             Input("select-button", "n_clicks"),
             Input("sum-per", "children"),
+            Input("my-tabs", "value")
         ],
     )
     def update_team_plot(home_team, away_team, home_form, away_from, features, stored_data_transfer, swap_home,
                          swap_away, highlight_button, reset_button, mode):
 
+    def update_team_plot(home_team, away_team,home_form,away_from, features, stored_data_transfer,swap_home,
+        swap_away,color):
         # delay needed in order to ensure that the filed is updated
         time.sleep(2)
 
@@ -794,13 +814,14 @@ if __name__ == "__main__":
             Input("home-dropdown", "value"),
             Input("home-formation", "value"),
             Input("home-swap_players", "n_clicks"),
+            Input("my-tabs", "value")
         ],
     )
-    def update_table(home_drop, home_form, swap):
+    def update_table(home_drop, home_form, swap,color):
         # dealy needed in order to ensure that the filed is updated
-        time.sleep(1)
+        time.sleep(1.0)
         # print(home_bench.columns)
-        return home_table.plot_table(home_bench)
+        return home_table.plot_table(home_bench,home=True,colors=app_color)
 
     @app.callback(
         Output("table_out_home_high", "children"),
@@ -809,6 +830,7 @@ if __name__ == "__main__":
         ],
     )
     def update_graph_home(active_cell):
+        time.sleep(0.2)
         global home_selected_bench
         # print("triggereed")
         if active_cell:
@@ -832,13 +854,14 @@ if __name__ == "__main__":
             Input("away-dropdown", "value"),
             Input("away-formation", "value"),
             Input("away-swap_players", "n_clicks"),
+            Input("my-tabs", "value"),
         ],
     )
-    def update_table(away_drop, away_from, swap_away):
+    def update_table(away_drop, away_from, swap_away,color):
         # dealy needed in order to ensure that the filed is updated
 
         time.sleep(1)
-        return away_table.plot_table(away_bench)
+        return away_table.plot_table(away_bench,home=False,colors=app_color)
 
     @app.callback(
         Output("table_out_away_high", "children"),
@@ -847,6 +870,7 @@ if __name__ == "__main__":
         ],
     )
     def update_graph_away(active_cell):
+        time.sleep(0.2)
         # print("triggereed")
         global away_selected_bench
         if active_cell:
@@ -910,7 +934,20 @@ if __name__ == "__main__":
 
     @app.callback(Output("hidden-div", "children"), [Input("my-tabs", "value")])
     def update_output(selected_tab):
-        print("tab: ", selected_tab)
+        #print("tab: ", selected_tab)
+        global app_color
+
+
+            # You can add more logic based on the selected_tab value if needed
+        if selected_tab == "tab1":
+            app_color = color_list
+        elif selected_tab == "tab2":
+            app_color = color_red_blind
+            #app_color = color_list
+        elif selected_tab == "tab3":
+            app_color = color_list_random
+            #app_color = color_list
+        time.sleep(1.0)
         return f"The selected category is: {selected_tab}"
 
     app.run_server(debug=False, dev_tools_ui=False)

@@ -16,6 +16,42 @@ DF = 2
 MF = 4
 FW = 6
 
+color_list = ["rgb(255,0,0)","rgb(0,0,255)","rgb(0, 200, 0)","rgb(255,0,0,0.4)","rgb(0,0,255,0.4)","rgb(255, 255, 0)","rgb(0, 128, 0)","rgb(128, 128, 128)","rgb(217, 217, 217)","rgb(230, 230, 230)",[0, 0, 255],[255, 0, 0],[0, 255, 0],[255, 165, 0]]
+color_red_blind = ["rgb(255, 0, 0)",  # Red
+              "rgb(0, 128, 255)",  # Blue
+              "rgb(0, 200, 0)",  # Green
+              "rgb(255, 0, 0, 0.4)",  # Red with alpha
+              "rgb(0, 128, 255, 0.4)",  # Blue with alpha
+              "rgb(255, 255, 0)",  # Yellow
+              "rgb(0, 128, 0)",  # Dark Green
+              "rgb(128, 128, 128)",  # Gray
+              "rgb(217, 217, 217)",  # Light Gray
+              "rgb(230, 230, 230)",  # Very Light Gray
+              [0, 0, 255],  # Blue (as a list)
+              [255, 0, 0],  # Red (as a list)
+              [0, 255, 0],  # Green (as a list)
+              [255, 165, 0]]  # Orange
+
+color_list_random = ["rgb(255, 92, 51)",  # Orange-Red
+              "rgb(153, 102, 255)",  # Purple
+              "rgb(0, 204, 153)",  # Green
+              "rgb(255, 0, 204)",  # Magenta
+              "rgb(102, 204, 255)",  # Light Blue
+              "rgb(255, 204, 51)",  # Yellow
+              "rgb(0, 102, 204)",  # Dark Blue
+              "rgb(255, 128, 0)",  # Orange
+              "rgb(128, 128, 128)",  # Gray
+              "rgb(204, 204, 204)",  # Silver
+              [255, 0, 0],  # Red (as a list)
+              [0, 255, 0],  # Green (as a list)
+              [0, 0, 255],  # Blue (as a list)
+              [255, 255, 0]]  # Yellow
+
+
+   # 0 home color , 1 away color , 2 field color , 3 home bench color,  4 away bench color , 5 selected player color, 6 fiedl gird color, 7 selected bench , 8 bench non editable, 9 bench title, 10-11-12-13
+      
+
+
 
 def swap_players(home_selected_field, home_selected_bench, home_bench, player_dataf):
     drop_columns = ["position_x", "position_y"]
