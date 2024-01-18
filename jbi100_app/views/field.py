@@ -236,13 +236,25 @@ class Field(html.Div):
             'x': 'GK'
         }
 
+        # Create a dictionary that maps colors to teams
+        color_to_team = df_concat.set_index('color')['team'].to_dict()
+
         # Set the name attribute for each trace
         self.fig.for_each_trace(
-            lambda trace: trace.update(name=symbol_to_position[trace.marker.symbol])
+            lambda trace: trace.update(
+                name=f"{symbol_to_position[trace.marker.symbol]}, {color_to_team[trace.marker.color]}")
         )
+
+        color_list = [colors[0], colors[1], colors[5], colors[3], colors[4], colors[7], colors[14]]
+
+        for color_value in color_list:
+            self.fig.for_each_trace(
+                lambda trace: trace.update(hovertemplate=trace.hovertemplate.replace(f'color={color_value}<br>', ''))
+            )
 
         self.fig.update_layout(
             # margin=dict(l=20, r=20, t=20, b=20),
+            legend={"title": "Position, Team"},
             margin=dict(l=20, r=20, t=10, b=0),
             xaxis_title="",
             yaxis_title="",
