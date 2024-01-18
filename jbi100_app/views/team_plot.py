@@ -28,7 +28,7 @@ class Bar(html.Div):
             "shots_on_target": "Shots on Target",
             "goals": "Goals",
         }
-        print(color_list)
+
         color_mapping = {
             color_list[0]: color_list[0],
             color_list[1]: color_list[1]
