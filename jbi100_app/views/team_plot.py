@@ -18,7 +18,7 @@ class Bar(html.Div):
             children=[dcc.Graph(id=self.html_id)],
         )
 
-    def plot_bar(self, categories, names, percent_df=None):
+    def plot_bar(self, categories, names, color_list, home_team, away_team, percent_df=None):
 
         column_name_to_alias = {
             "dribbles_completed": "Dribbles Completed",
@@ -27,6 +27,11 @@ class Bar(html.Div):
             "passes_long": "Long Passes",
             "shots_on_target": "Shots on Target",
             "goals": "Goals",
+        }
+        print(color_list)
+        color_mapping = {
+            color_list[0]: color_list[0],
+            color_list[1]: color_list[1]
         }
 
         if percent_df is None:
@@ -75,16 +80,19 @@ class Bar(html.Div):
             # Replace the feature names with their aliases in the dataframe
             sorted_plot_df['feature'] = sorted_plot_df['feature'].map(column_name_to_alias)
 
+            sorted_plot_df['color'] = np.where(sorted_plot_df['team'] == home_team, color_list[0], color_list[1])
+
             self.fig = px.bar(
                 sorted_plot_df,
                 x="feature",
                 y="value",
-                color="team",
+                color="color",
                 barmode="group",
                 hover_name="name",
                 hover_data={"team": False, "feature": False, "value": True},
                 title="Team plot",
-                custom_data=['name']
+                custom_data=['name'],
+                color_discrete_map=color_mapping
             )
 
             self.fig.update_layout(
@@ -98,16 +106,19 @@ class Bar(html.Div):
         else:
             sorted_plot_df = percent_df
 
+            sorted_plot_df['color'] = np.where(sorted_plot_df['team'] == home_team, color_list[0], color_list[1])
+
             self.fig = px.bar(
                 sorted_plot_df,
                 x="feature",
                 y="value",
-                color="team",
+                color="color",
                 barmode="group",
                 hover_name="name",
                 hover_data={"team": False, "feature": False, "value": True},
                 title="Team plot",
-                custom_data=['name']
+                custom_data=['name'],
+                color_discrete_map=color_mapping
             )
 
             self.fig.update_layout(
@@ -117,6 +128,11 @@ class Bar(html.Div):
                 margin=dict(t=40),
                 clickmode="event",
             )
+
+        # Customize legend labels for specific colors
+        legend_labels = {'rgb(255,0,0)': home_team, 'rgb(0,255,0)': away_team}
+        for trace, legend_label in zip(self.fig.data, legend_labels.values()):
+            trace.name = legend_label
 
         self.sorted_plot_df = sorted_plot_df
 

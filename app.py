@@ -632,10 +632,8 @@ if __name__ == "__main__":
         ],
     )
     def update_team_plot(home_team, away_team, home_form, away_from, features, stored_data_transfer, swap_home,
-                         swap_away, highlight_button, reset_button, mode):
+                         swap_away, highlight_button, reset_button, mode, color):
 
-    def update_team_plot(home_team, away_team,home_form,away_from, features, stored_data_transfer,swap_home,
-        swap_away,color):
         # delay needed in order to ensure that the filed is updated
         time.sleep(2)
 
@@ -684,7 +682,7 @@ if __name__ == "__main__":
             sorted_plot_df = sorted_plot_df.rename(columns={'percentage': 'value'})
 
             # Update the figure with the new data
-            updated_figure = team_plot.plot_bar(sorted_features, all_players, sorted_plot_df)
+            updated_figure = team_plot.plot_bar(sorted_features, all_players, app_color, home_team, away_team, sorted_plot_df)
 
         else:
 
@@ -701,7 +699,7 @@ if __name__ == "__main__":
             if swap_home != swap_home_bar or swap_away != swap_away_bar:
                 updated_stacked_bar = True
 
-            updated_figure = team_plot.plot_bar(sorted_features, all_players)
+            updated_figure = team_plot.plot_bar(sorted_features, all_players, app_color, home_team, away_team)
 
         bar_chart_teams_plot = [home_team, away_team]
 
@@ -762,7 +760,8 @@ if __name__ == "__main__":
             team_indices = [playing_teams.index(team_name) for team_name in team_names]
 
             # create a list of colors for each bar in the trace
-            colors = ['Yellow' if player_name in selected_players else ('blue' if int(team_index) == 0 else 'red') for
+            colors = [app_color[5] if player_name in selected_players
+                      else (app_color[0] if int(team_index) == 0 else app_color[1]) for
                       player_name, team_index in zip(player_names, team_indices)]
 
             # update the trace's color
@@ -819,7 +818,7 @@ if __name__ == "__main__":
     )
     def update_table(home_drop, home_form, swap,color):
         # dealy needed in order to ensure that the filed is updated
-        time.sleep(1.0)
+        time.sleep(1.5)
         # print(home_bench.columns)
         return home_table.plot_table(home_bench,home=True,colors=app_color)
 
@@ -830,7 +829,7 @@ if __name__ == "__main__":
         ],
     )
     def update_graph_home(active_cell):
-        time.sleep(0.2)
+        time.sleep(1.0)
         global home_selected_bench
         # print("triggereed")
         if active_cell:
@@ -860,7 +859,7 @@ if __name__ == "__main__":
     def update_table(away_drop, away_from, swap_away,color):
         # dealy needed in order to ensure that the filed is updated
 
-        time.sleep(1)
+        time.sleep(1.5)
         return away_table.plot_table(away_bench,home=False,colors=app_color)
 
     @app.callback(
@@ -870,7 +869,7 @@ if __name__ == "__main__":
         ],
     )
     def update_graph_away(active_cell):
-        time.sleep(0.2)
+        time.sleep(1.0)
         # print("triggereed")
         global away_selected_bench
         if active_cell:
