@@ -34,6 +34,14 @@ if __name__ == "__main__":
 
     updated_stacked_bar = False
 
+    home_form_bar = '4-3-3-1'
+
+    away_form_bar = '4-3-3-1'
+
+    swap_home_bar = 0
+
+    swap_away_bar = 0
+
     sorted_features = []
 
     bar_chart_teams = ["Australia", "Wales"]
@@ -603,6 +611,14 @@ if __name__ == "__main__":
 
         global bar_chart_teams_plot
 
+        global home_form_bar
+
+        global away_form_bar
+
+        global swap_home_bar
+
+        global swap_away_bar
+
         # Get the dataframe
         sorted_plot_df = team_plot.get_dataframe()
 
@@ -611,6 +627,10 @@ if __name__ == "__main__":
                 and len(features) == sorted_plot_df['feature'].nunique()
                 and home_team == bar_chart_teams_plot[0]
                 and away_team == bar_chart_teams_plot[1]
+                and home_form == home_form_bar
+                and away_from == away_form_bar
+                and swap_home == swap_home_bar
+                and swap_away == swap_away_bar
         ):
 
             # Calculate the total value for each feature for each team
@@ -638,9 +658,23 @@ if __name__ == "__main__":
             if home_team != bar_chart_teams_plot[0] or away_team != bar_chart_teams_plot[1]:
                 updated_stacked_bar = True
 
+            if home_form != home_form_bar or away_from != away_form_bar:
+                updated_stacked_bar = True
+
+            if swap_home != swap_home_bar or swap_away != swap_away_bar:
+                updated_stacked_bar = True
+
             updated_figure = team_plot.plot_bar(sorted_features, all_players)
 
         bar_chart_teams_plot = [home_team, away_team]
+
+        home_form_bar = home_form
+
+        away_form_bar = away_from
+
+        swap_home_bar = swap_home
+
+        swap_away_bar = swap_away
 
         # extract traces
         traces = updated_figure["data"]
