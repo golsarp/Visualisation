@@ -542,8 +542,19 @@ if __name__ == "__main__":
             stack_index = clicked_point % 11
             feature_index = clicked_point // 11
 
+        feature_alias = {
+            "dribbles_completed": "Dribbles Completed",
+            "passes_short": "Short Passes",
+            "passes_medium": "Medium Passes",
+            "passes_long": "Long Passes",
+            "shots_on_target": "Shots on Target",
+            "goals": "Goals",
+        }
+
         # determine the feature name based on the feature_index
         feature_name = sorted_features[feature_index]
+
+        feature_name = feature_alias.get(feature_name, feature_name)
 
         # get the dataframe of players on the field.
         sorted_plot_df = team_plot.get_dataframe()
@@ -691,10 +702,20 @@ if __name__ == "__main__":
 
         playing_teams.sort()
 
+        feature_alias = {
+            "Dribbles Completed": "dribbles_completed",
+            "Short Passes": "passes_short",
+            "Medium Passes": "passes_medium",
+            "Long Passes": "passes_long",
+            "Shots on Target": "shots_on_target",
+            "Goals": "goals",
+        }
+
         stored_data = {}
         for segment in stored_data_transfer:
             team_name, feature_name, stack_index, _ = segment.split('|')
             team_index = str(playing_teams.index(team_name))
+            feature_name = feature_alias.get(feature_name, feature_name)
             feature_index = sorted_features.index(feature_name)
             clicked_point = feature_index * 11 + int(stack_index)
             if team_index not in stored_data:
