@@ -1,3 +1,5 @@
+import dash
+
 from jbi100_app.main import app
 from jbi100_app.views.scatterplot import Scatterplot
 from jbi100_app.views.field import Field
@@ -30,9 +32,13 @@ if __name__ == "__main__":
 
     sum_correlation = False
 
+    updated_stacked_bar = False
+
     sorted_features = []
 
     bar_chart_teams = ["Australia", "Wales"]
+
+    bar_chart_teams_plot = ["Australia", "Wales"]
 
     global_features = ["dribbles_completed", "shots_on_target"]
     # clicked players, initially set to some players
@@ -579,7 +585,7 @@ if __name__ == "__main__":
             Input("away-swap_players", "n_clicks"),
             Input("radar-button", "n_clicks"),
             Input("select-button", "n_clicks"),
-            Input("sum-per", "n_clicks"),
+            Input("sum-per", "children"),
         ],
     )
     def update_team_plot(home_team, away_team, home_form, away_from, features, stored_data_transfer, swap_home,
@@ -591,10 +597,22 @@ if __name__ == "__main__":
         global sorted_features
         sorted_features = sorted(features)
 
+        global sum_correlation
+
+        global updated_stacked_bar
+
+        global bar_chart_teams_plot
+
         # Get the dataframe
         sorted_plot_df = team_plot.get_dataframe()
 
-        if sorted_plot_df is not None and sum_correlation is True:
+        if (sorted_plot_df is not None
+                and sum_correlation is True
+                and len(features) == sorted_plot_df['feature'].nunique()
+                and home_team == bar_chart_teams_plot[0]
+                and away_team == bar_chart_teams_plot[1]
+        ):
+
             # Calculate the total value for each feature for each team
             total_values = sorted_plot_df.groupby(['team', 'feature'])['value'].sum()
 
@@ -612,7 +630,17 @@ if __name__ == "__main__":
             updated_figure = team_plot.plot_bar(sorted_features, all_players, sorted_plot_df)
 
         else:
+
+            if sorted_plot_df is not None:
+                if len(features) != sorted_plot_df['feature'].nunique():
+                    updated_stacked_bar = True
+
+            if home_team != bar_chart_teams_plot[0] or away_team != bar_chart_teams_plot[1]:
+                updated_stacked_bar = True
+
             updated_figure = team_plot.plot_bar(sorted_features, all_players)
+
+        bar_chart_teams_plot = [home_team, away_team]
 
         # extract traces
         traces = updated_figure["data"]
@@ -653,7 +681,7 @@ if __name__ == "__main__":
             team_indices = [playing_teams.index(team_name) for team_name in team_names]
 
             # create a list of colors for each bar in the trace
-            colors = ['orange' if player_name in selected_players else ('blue' if int(team_index) == 0 else 'red') for
+            colors = ['Yellow' if player_name in selected_players else ('blue' if int(team_index) == 0 else 'red') for
                       player_name, team_index in zip(player_names, team_indices)]
 
             # update the trace's color
@@ -672,12 +700,19 @@ if __name__ == "__main__":
 
     @app.callback(
         Output("sum-per", "children"),
-        [Input("sum-per", "n_clicks")],
+        [Input("sum-per", "n_clicks"),
+         Input(team_plot.html_id, "figure")],
     )
-    def update_output(n_clicks):
+    def update_output(n_clicks, fig):
         # global used for player selection
         global sum_correlation
-        # global selected_players
+        global updated_stacked_bar
+
+        if updated_stacked_bar:
+            updated_stacked_bar = False
+            sum_correlation = False
+            new_label = "%"
+            return new_label
 
         if n_clicks % 2 == 1:
             new_label = "∑"
@@ -685,7 +720,6 @@ if __name__ == "__main__":
             return new_label
         else:
             sum_correlation = False
-            # selected_players = []
             new_label = "%"
             return new_label
 
