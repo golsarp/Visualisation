@@ -1,5 +1,6 @@
 import dash
 
+import plotly.graph_objects as go
 from jbi100_app.main import app
 from jbi100_app.views.scatterplot import Scatterplot
 from jbi100_app.views.field import Field
@@ -718,9 +719,9 @@ if __name__ == "__main__":
 
         global selected_players
 
-        playing_teams = [home_team, away_team]
+        playing_teams_unsorted = [home_team, away_team]
 
-        playing_teams.sort()
+        playing_teams = sorted(playing_teams_unsorted)
 
         feature_alias = {
             "Dribbles": "dribbles_completed",
@@ -761,10 +762,15 @@ if __name__ == "__main__":
 
             team_indices = [playing_teams.index(team_name) for team_name in team_names]
 
-            # create a list of colors for each bar in the trace
-            colors = [app_color[5] if player_name in selected_players
-                      else (app_color[0] if int(team_index) == 0 else app_color[1]) for
-                      player_name, team_index in zip(player_names, team_indices)]
+            if playing_teams_unsorted == playing_teams:
+                # create a list of colors for each bar in the trace
+                colors = [app_color[5] if player_name in selected_players
+                          else (app_color[0] if int(team_index) == 0 else app_color[1]) for
+                          player_name, team_index in zip(player_names, team_indices)]
+            else:
+                colors = [app_color[5] if player_name in selected_players
+                          else (app_color[1] if int(team_index) == 0 else app_color[0]) for
+                          player_name, team_index in zip(player_names, team_indices)]
 
             # update the trace's color
             trace['marker']['color'] = colors
@@ -777,6 +783,20 @@ if __name__ == "__main__":
 
             # update figure dict with updated trace dict
             updated_figure["data"][idx].update(trace)
+
+        if playing_teams_unsorted == playing_teams:
+            # Customize legend labels for specific colors
+            legend_labels = {'rgb(255,0,0)': home_team, 'rgb(0,255,0)': away_team, 'rgb(255,255,0)': 'Selected Players'}
+            for trace, legend_label in zip(updated_figure.data, legend_labels.values()):
+                trace.name = legend_label
+
+        else:
+            legend_labels = {'rgb(255,0,0)': away_team, 'rgb(0,255,0)': home_team, 'rgb(255,255,0)': 'Selected Players'}
+            for trace, legend_label in zip(updated_figure.data, legend_labels.values()):
+                trace.name = legend_label
+
+        # Add a dummy trace for the yellow color
+        updated_figure.add_trace(go.Bar(x=[None], y=[None], marker_color='rgb(255,255,0)', name='Selected Players'))
 
         return updated_figure
 
