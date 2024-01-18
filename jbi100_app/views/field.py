@@ -92,8 +92,6 @@ class Field(html.Div):
         # print("selected home bench: ", home_bench_pl)
         # print("selected home field: ", home_field_pl)
 
-        print(bar_players)
-
         if df_concat is None:
             # print("entered INIT ")
             df_home = self.process_df(home, True)
@@ -231,10 +229,18 @@ class Field(html.Div):
             color_discrete_map=color_mapping,
         )
 
+        symbol_to_position = {
+            'circle': 'FW',
+            'diamond': 'MF',
+            'square': 'DF',
+            'x': 'GK'
+        }
 
+        # Set the name attribute for each trace
+        self.fig.for_each_trace(
+            lambda trace: trace.update(name=symbol_to_position[trace.marker.symbol])
+        )
 
-     
-        
         self.fig.update_layout(
             # margin=dict(l=20, r=20, t=20, b=20),
             margin=dict(l=20, r=20, t=10, b=0),
