@@ -20,6 +20,15 @@ class Bar(html.Div):
 
     def plot_bar(self, categories, names, percent_df=None):
 
+        column_name_to_alias = {
+            "dribbles_completed": "Dribbles Completed",
+            "passes_short": "Short Passes",
+            "passes_medium": "Medium Passes",
+            "passes_long": "Long Passes",
+            "shots_on_target": "Shots on Target",
+            "goals": "Goals",
+        }
+
         if percent_df is None:
 
             df_poss, df_shoot, df_pass = get_datasets()
@@ -30,6 +39,7 @@ class Bar(html.Div):
                 "passes_long": df_pass,
                 "passes_medium": df_pass,
                 "shots_on_target": df_shoot,
+                "goals": df_shoot,
             }
 
             plot_df = pd.DataFrame(columns=["name", "team", "feature", "value"])
@@ -61,6 +71,9 @@ class Bar(html.Div):
             sorted_plot_df = plot_df.sort_values(
                 ["team", "feature", "value"], ascending=[True, True, False]
             )
+
+            # Replace the feature names with their aliases in the dataframe
+            sorted_plot_df['feature'] = sorted_plot_df['feature'].map(column_name_to_alias)
 
             self.fig = px.bar(
                 sorted_plot_df,

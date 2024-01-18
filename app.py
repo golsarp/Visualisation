@@ -100,6 +100,18 @@ if __name__ == "__main__":
     # team plot
     team_plot = Bar("Team-plot", selected_players, selected_teams, features)
 
+    column_name_to_alias = {
+        "dribbles_completed": "Dribbles Completed",
+        "passes_short": "Short Passes",
+        "passes_medium": "Medium Passes",
+        "passes_long": "Long Passes",
+        "shots_on_target": "Shots on Target",
+        "goals": "Goals",
+    }
+
+    # Generate the options for the dropdown using the dictionary
+    options = [{"label": alias, "value": column_name} for column_name, alias in column_name_to_alias.items()]
+
     # Define the layout
     app.layout = html.Div(
         id="app-container",
@@ -295,14 +307,8 @@ if __name__ == "__main__":
                     dcc.Store(id="team-plot-store", data={}),
                     # team plot dropdown feature selector
                     dcc.Dropdown(
-                        [
-                            "dribbles_completed",
-                            "passes_short",
-                            "passes_medium",
-                            "passes_long",
-                            "shots_on_target",
-                        ],
-                        ["dribbles_completed", "shots_on_target"],
+                        options=options,
+                        value=["dribbles_completed", "shots_on_target"],  # Initial selected values
                         multi=True,
                         id="team-plot-dropdown",
                     ),
