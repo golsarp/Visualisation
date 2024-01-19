@@ -125,17 +125,32 @@ if __name__ == "__main__":
     # Generate the options for the dropdown using the dictionary
     options = [{"label": alias, "value": column_name} for column_name, alias in column_name_to_alias.items()]
 
+
+
     # Define the layout
     app.layout = html.Div(
        
 
         id="app-container",
         children=[
-        #     dcc.ConfirmDialog(
-        #     id="popup-message",
-        #     message="This is your pop-up message to help you how to use the app. To swap players from the field Select and Swap buttons can be used.  " ,                                
-        #     displayed=True,  # Show the message initially
-        # ),
+            dcc.ConfirmDialog(
+            id="popup-message",
+            message = (
+                "This is your pop-up message to help you use the app.\n\n"
+                "• To swap players from the field and bench, use Select and Swap buttons under the tables.\n"
+                "• To compare players, use the Select and Plot buttons under the Radar plot.\n"
+                "• Selected players will also be highlighted in the Team plot Bar chart.\n"
+                "• To reconfigure bar chart, use the % or ∑ under the Radar Plot.\n"
+                "• To further compare teams, feel free to change formations using the buttons on top of the Field.\n\n"
+                "• All plots will be updated accordingly after changing teams or formations.\n\n"
+                "• Please wait while the app is updating. You can check this from the tab ribbon.\n\n"
+                "• For a demonstration and further explanation a feel free to visit our Github: https://github.com/golsarp/Visualisation .\n\n"
+
+                "Enjoy the app!!"
+            ),
+            displayed=True,  # Show the message initially
+        ),
+            
             html.Div(
                 id="left-column",
                 className="eight columns",
@@ -654,7 +669,7 @@ if __name__ == "__main__":
                          swap_away, highlight_button, reset_button, mode, color):
 
         # delay needed in order to ensure that the filed is updated
-        time.sleep(2)
+        time.sleep(1.0)
 
         global sorted_features
         sorted_features = sorted(features)
@@ -989,3 +1004,4 @@ if __name__ == "__main__":
     
 
     app.run_server(debug=False, dev_tools_ui=False)
+

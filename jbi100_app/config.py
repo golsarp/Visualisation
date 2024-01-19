@@ -20,7 +20,7 @@ color_list = ["rgb(255,0,0)","rgb(0,0,255)","rgb(0, 200, 0)","rgb(255,0,0,0.4)",
 color_red_blind = [
                 "rgb(255, 0, 0)",          # Red
                 "rgb(0, 102, 204)",        # Blue (adjusted for better visibility)
-                "rgb(204, 204, 204)",        # Green (adjusted for better visibility)
+                "rgb(204, 204, 204)",      # Green (adjusted for better visibility)
                 "rgba(255, 0, 0, 0.4)",    # Transparent Red
                 "rgba(0, 102, 204, 0.4)",  # Transparent Blue (adjusted for better visibility)
                 "rgb(255, 255, 0)",        # Yellow
@@ -30,15 +30,15 @@ color_red_blind = [
                 "rgb(217, 217, 217)",      # Light Gray
                 [0, 51, 204],              # Dark Blue (adjusted for better visibility)
                 [255, 77, 77],             # Salmon (adjusted for better visibility)
-                [0, 204, 0],               # Bright Green
-                [255, 153, 51],             # Orange (adjusted for better visibility)
+                [110, 110, 110],            # Bright Green
+                [0, 0, 0],             # Orange (adjusted for better visibility)
                 "rgb(255,153,0)",
             ]
 
 color_list_random = [
                 "rgb(178, 34, 34)",         # Firebrick (adjusted for better visibility)
                 "rgb(0, 102, 204)",         # Blue
-                "rgb(0, 128, 0)",           # Green (adjusted for better visibility)
+                "rgb(204, 204, 204)",           # Green (adjusted for better visibility)
                 "rgba(178, 34, 34, 0.4)",   # Transparent Firebrick (adjusted for better visibility)
                 "rgba(0, 102, 204, 0.4)",   # Transparent Blue
                 "rgb(255, 255, 0)",         # Yellow
@@ -49,7 +49,7 @@ color_list_random = [
                 [0, 51, 204],               # Dark Blue
                 [255, 77, 77],              # Salmon
                 [0, 204, 0],                # Bright Green
-                [255, 153, 51],             # Orange
+                [110, 110, 110],  # Orange
                 "rgb(255,153,0)",
             ]
 
