@@ -1,5 +1,4 @@
 from dash import dcc, html
-import plotly.graph_objects as go
 import plotly.express as px
 from jbi100_app.config import (
     position_mapping_home,
@@ -8,7 +7,6 @@ from jbi100_app.config import (
 )
 
 import pandas as pd
-import time
 
 
 class Field(html.Div):
@@ -20,8 +18,6 @@ class Field(html.Div):
 
         # Equivalent to `html.Div([...])`
         super().__init__(
-            # className="graph_card",
-            # children=[html.H6(name), dcc.Graph(id=self.html_id)],
             children=[dcc.Graph(id=self.html_id)],
         )
 
@@ -59,17 +55,8 @@ class Field(html.Div):
     def calculate_corrected_y(self, group, max_val):
         # You can customize the factor as needed
         factor = max_val / (len(group) + 1)
-        # print("factor ", factor)
-        # print("group ", group)
-        # group["numeric_y"] = pd.to_numeric(group["position_y"], errors="coerce")
-        res = group["position_y"] * factor
-        # print("res is ", res)
-        # print("gorup after ")
-        # group["res"] = group["position_y"] * factor
 
         group["corrected_y"] = group["position_y"] * factor
-        # print("gorup after ")
-        # print(group)
 
         return group["corrected_y"]
 
@@ -80,42 +67,23 @@ class Field(html.Div):
         home_form,
         away_form,
         selected_players,
-        # home_bench_pl,
         home_field_pl,
         away_field_pl,
         df_concat,
         home_table,
         away_table,
-        colors
+        colors,
+        bar_players,
     ):
-        # print("selected home bench: ", home_bench_pl)
-        # print("selected home field: ", home_field_pl)
+
         if df_concat is None:
-            # print("entered INIT ")
+
             df_home = self.process_df(home, True)
             df_away = self.process_df(away, False)
-            # Bench players also extracted
-
-            # do all of this if swapping is needed
-            # home_b_pl_data = None
-            # if home_bench_pl is not None:
-            #     home_b_pl_data = df_home[df_home["player"] == home_bench_pl]
-            #     print(home_b_pl_data.empty)
-            # home_field_pl_data = None
-            # if home_field_pl is not None:
-            #     home_field_pl_data = df_home[df_home["player"] == home_field_pl]
-            #     print(home_field_pl_data.empty)
 
             df_home_field, df_home_bench = self.select_players(df_home, home_form)
-            # print(df_home_field)
-            # if not home_field_pl_data.empty and :
-            # remove home_field_pl_data from home field
-            # add
 
             df_away_field, df_away_bench = self.select_players(df_away, away_form)
-
-            # home_table = df_home_bench[["player", "position", "age"]]
-            # away_table = df_away_bench[["player", "position", "age"]]
 
             home_table = df_home_bench
             away_table = df_away_bench
@@ -137,38 +105,8 @@ class Field(html.Div):
             )
 
             df_concat = pd.concat([df_home_field, df_away_field], ignore_index=True)
-        # else:
-        #    print("Did not enter ")
 
-        # df_concat["selected"] = df_concat["player"].isin(selected_players)
-        # Apply conditions directly to create the 'color' column
-        # df_concat["color"] = df_concat.apply(
-        #     lambda row: "Yellow"
-        #     if row["player"] in selected_players
-        #     else "Blue"
-        #     if row["team"] == home
-        #     else "Red"
-        #     if row["team"] == away
-        #     else "Other",
-        #     axis=1,
-        # )
-
-        # df_concat["color"] = df_concat.apply(
-        #     lambda row: "Black"
-        #     if row["player"] == home_field_pl
-        #     else "Yellow"
-        #     if row["player"] in selected_players
-        #     else "Blue"
-        #     if row["team"] == home
-        #     else "Red"
-        #     if row["team"] == away
-        #     else "Other",
-        #     axis=1,
-        # )
-        
-
-    # 0 home color , 1 away color , 2 field color 
-    #  3 home bench color,  4 away bench color , 5 selected bench color, 
+    # 0 home color , 1 away color , 2 field color, 3 home bench color,  4 away bench color , 5 selected bench color,
 
         df_concat["color"] = df_concat.apply(
             lambda row: colors[7]
@@ -177,6 +115,8 @@ class Field(html.Div):
             if row["player"] == home_field_pl
             else colors[5]
             if row["player"] in selected_players
+            else colors[14]
+            if row["player"] in bar_players
             else colors[0]
             if row["team"] == home
             else colors[1]
@@ -185,22 +125,11 @@ class Field(html.Div):
             axis=1,
         )
 
-        # print(selected_players)
-        # print(df_concat.columns)
-        # print(df_concat)
-        # time.sleep(0.1)
-        # player age minutes_90s miscontrols
-        # print(px.colors.qualitative.Set1)
         hover_columns = [
             "player",
-            # "position",
-            # "team",
             "age",
             "minutes_90s",
             "miscontrols"
-            # "dispossessed",
-            # "passes_received",
-            # "progressive_passes_received",
         ]
         color_mapping = {
             colors[2]: colors[2],
@@ -210,12 +139,12 @@ class Field(html.Div):
             colors[3]: colors[3],
             colors[4]: colors[4],
             colors[7]: colors[7],
+            colors[14]: colors[14],
         }
         self.fig = px.scatter(
             df_concat,
             y="corrected_y",
             x="position_x",
-            # color="team",
             color="color",
             symbol="position",
             hover_data=hover_columns,
@@ -224,12 +153,31 @@ class Field(html.Div):
             color_discrete_map=color_mapping,
         )
 
+        symbol_to_position = {
+            'circle': 'FW',
+            'diamond': 'MF',
+            'square': 'DF',
+            'x': 'GK'
+        }
 
+        # Create a dictionary that maps colors to teams
+        color_to_team = df_concat.set_index('color')['team'].to_dict()
 
-     
-        
+        # Set the name attribute for each trace
+        self.fig.for_each_trace(
+            lambda trace: trace.update(
+                name=f"{symbol_to_position[trace.marker.symbol]}, {color_to_team[trace.marker.color]}")
+        )
+
+        color_list = [colors[0], colors[1], colors[5], colors[3], colors[4], colors[7], colors[14]]
+
+        for color_value in color_list:
+            self.fig.for_each_trace(
+                lambda trace: trace.update(hovertemplate=trace.hovertemplate.replace(f'color={color_value}<br>', ''))
+            )
+
         self.fig.update_layout(
-            # margin=dict(l=20, r=20, t=20, b=20),
+            legend={"title": "Position, Team"},
             margin=dict(l=20, r=20, t=10, b=0),
             xaxis_title="",
             yaxis_title="",
@@ -239,19 +187,6 @@ class Field(html.Div):
         self.fig.update_yaxes(showticklabels=False)
         self.fig.update_xaxes(showgrid=True, gridcolor=colors[6])
         self.fig.update_yaxes(showgrid=True, gridcolor=colors[6])
-
-        # # Update hover template to exclude unwanted columns
-        # hover_template = "<br>".join(
-        #     [
-        #         "{}: %{{customdata[{}]}}".format(col, i)
-        #         for i, col in enumerate(hover_columns)
-        #     ]
-        # )
-
-        # self.fig.update_traces(
-        #     hovertemplate=hover_template,
-        #     customdata=df_concat[hover_columns].values.tolist(),
-        # )
 
         # Add annotations (text on top of values)
         for i, row in df_concat.iterrows():
@@ -265,16 +200,10 @@ class Field(html.Div):
             self.fig.add_annotation(
                 x=row["position_x"],  # x-coordinate of the annotation
                 y=row["corrected_y"],
-                # y=row["position_y"],  # y-coordinate of the annotation
-                # name=row["player"],
-                # text=str(row["player"]),  # text to display
                 text=str(last_name),  # text to display
                 xshift=0,
                 yshift=+20,
                 showarrow=False,
-                # showarrow=False,
-                # ax=0,
-                # ay=-30,
             )
 
         self.fig.update_traces(marker_size=15)

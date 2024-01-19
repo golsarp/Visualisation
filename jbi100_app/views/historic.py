@@ -1,4 +1,3 @@
-import dash
 from dash import dcc
 from dash import html
 import plotly.graph_objs as go
@@ -15,7 +14,7 @@ class Historic(html.Div):
             children=[dcc.Graph(id=self.html_id)],
         )
 
-    def build_historic(self, team1, team2,colors):
+    def build_historic(self, team1, team2, colors):
         df = pd.read_csv(file_path)
         df["Year"] = df["Year"].astype(int)
         # Create an empty figure
@@ -85,16 +84,15 @@ class Historic(html.Div):
         )
         unique_years.sort()
 
-
         # Define a custom color scale function
         def get_color(is_home_team, is_home, is_winner):
             
             # Define the base color for home and away
             if is_home_team:
-                base_color_home = colors[10]  # Blue
-                base_color_away = colors[11]  # Red
+                base_color_home = colors[11]     # Red  10,11,12,13
+                base_color_away = colors[12]       # green    
             else:
-                base_color_home = colors[12]
+                base_color_home = colors[10]     # blue # orange 
                 base_color_away = colors[13]
             color = base_color_home if is_home else base_color_away
             if is_winner:
@@ -121,8 +119,6 @@ class Historic(html.Div):
             if pd.isna(row["home_score"]) or row["home_team"] != team1:
                 continue
 
-            year_index = unique_years.index(row["Year"]) + 1
-
             self.figure.add_trace(
                 go.Bar(
                     x=[f"{row['home_team']} ({row['Year']})"],
@@ -147,7 +143,6 @@ class Historic(html.Div):
 
             if pd.isna(row["away_score"]) or row["away_team"] != team1:
                 continue
-            year_index = unique_years.index(row["Year"]) + 1
 
             self.figure.add_trace(
                 go.Bar(
@@ -174,8 +169,6 @@ class Historic(html.Div):
             if pd.isna(row["home_score"]) or row["home_team"] != team2:
                 continue
 
-            year_index = unique_years.index(row["Year"]) + 1
-
             self.figure.add_trace(
                 go.Bar(
                     x=[f"{row['home_team']} ({row['Year']})"],
@@ -200,7 +193,6 @@ class Historic(html.Div):
 
             if pd.isna(row["away_score"]) or row["away_team"] != team2:
                 continue
-            year_index = unique_years.index(row["Year"]) + 1
 
             self.figure.add_trace(
                 go.Bar(
@@ -235,7 +227,6 @@ class Historic(html.Div):
                 tickmode="array",
                 tickvals=tickvals,
                 ticktext=ticktext,
-                # tickangle=45,
                 categoryorder="array",
                 categoryarray=ordered_categories,
             )

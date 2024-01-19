@@ -18,78 +18,120 @@ class Bar(html.Div):
             children=[dcc.Graph(id=self.html_id)],
         )
 
-    def plot_bar(self, categories, names,home_team,away_team,color_list):
-        df_poss, df_shoot, df_pass = get_datasets()
+    def plot_bar(self, categories, names, color_list, home_team, away_team, percent_df=None):
 
-        attributes = {
-            "dribbles_completed": df_poss,
-            "passes_short": df_pass,
-            "passes_long": df_pass,
-            "passes_medium": df_pass,
-            "shots_on_target": df_shoot,
+        column_name_to_alias = {
+            "dribbles_completed": "Dribbles",
+            "passes_short": "Short",
+            "passes_medium": "Medium",
+            "passes_long": "Long",
+            "shots_on_target": "Shots",
+            "goals": "Goals",
         }
-
-        plot_df = pd.DataFrame(columns=["name", "team", "feature", "value"])
-
-        for player in names:
-            player_team = df_poss[df_poss["player"] == player]["team"].values[0]
-
-            for feature in categories:
-                feature_df = attributes[feature]
-
-                player_row = feature_df.loc[feature_df["player"] == player]
-
-                player_value = player_row[feature].values[0]
-
-                if np.isnan(player_value):
-                    player_value = 0
-
-                new_row = {
-                    "name": player,
-                    "team": player_team,
-                    "feature": feature,
-                    "value": player_value,
-                }
-
-                plot_df = pd.concat(
-                    [plot_df, pd.DataFrame(new_row, index=[0])], ignore_index=True
-                )
-
-        sorted_plot_df = plot_df.sort_values(
-            ["feature", "value"], ascending=[True, False]
-        )
-        
-        sorted_plot_df['color'] = np.where(sorted_plot_df['team'] == home_team, color_list[0], color_list[1])
-        #print(sorted_plot_df)
 
         color_mapping = {
-            color_list[0]:color_list[0],
-            color_list[1]:color_list[1]
+            color_list[0]: color_list[0],
+            color_list[1]: color_list[1]
         }
 
-        
-        self.fig = px.bar(
-            sorted_plot_df,
-            x="feature",
-            y="value",
-            color="color",
-            barmode="group",
-            hover_name="name",
-            hover_data={"team": False, "feature": False, "value": True},
-            title="Team plot",
-            color_discrete_map=color_mapping,
-            
+        if percent_df is None:
 
-        )
+            df_poss, df_shoot, df_pass = get_datasets()
 
-        self.fig.update_layout(
-            legend={"title": "Teams"},
-            xaxis_title=None,
-            yaxis_title="Nr of times",
-            margin=dict(t=40),
-            clickmode="event",
-        )
-                # Customize legend labels for specific colors
+            attributes = {
+                "dribbles_completed": df_poss,
+                "passes_short": df_pass,
+                "passes_long": df_pass,
+                "passes_medium": df_pass,
+                "shots_on_target": df_shoot,
+                "goals": df_shoot,
+            }
+
+            plot_df = pd.DataFrame(columns=["name", "team", "feature", "value"])
+
+            for player in names:
+                player_team = df_poss[df_poss["player"] == player]["team"].values[0]
+
+                for feature in categories:
+                    feature_df = attributes[feature]
+
+                    player_row = feature_df.loc[feature_df["player"] == player]
+
+                    player_value = player_row[feature].values[0]
+
+                    if np.isnan(player_value):
+                        player_value = 0
+
+                    new_row = {
+                        "name": player,
+                        "team": player_team,
+                        "feature": feature,
+                        "value": player_value,
+                    }
+
+                    plot_df = pd.concat(
+                        [plot_df, pd.DataFrame(new_row, index=[0])], ignore_index=True
+                    )
+
+            sorted_plot_df = plot_df.sort_values(
+                ["team", "feature", "value"], ascending=[True, True, False]
+            )
+
+            # Replace the feature names with their aliases in the dataframe
+            sorted_plot_df['feature'] = sorted_plot_df['feature'].map(column_name_to_alias)
+
+            sorted_plot_df['color'] = np.where(sorted_plot_df['team'] == home_team, color_list[0], color_list[1])
+
+            self.fig = px.bar(
+                sorted_plot_df,
+                x="feature",
+                y="value",
+                color="color",
+                barmode="group",
+                hover_name="name",
+                hover_data={"team": False, "feature": False, "value": True, "color": False},
+                title="Team passes & Shots",
+                custom_data=['name'],
+                color_discrete_map=color_mapping,
+                height=400
+            )
+
+            self.fig.update_layout(
+                legend={"title": "Teams"},
+                xaxis_title=None,
+                yaxis_title="Occurrences",
+                margin=dict(l=20, r=20, t=40, b=0),
+                clickmode="event",
+            )
+
+        else:
+            sorted_plot_df = percent_df
+
+            sorted_plot_df['color'] = np.where(sorted_plot_df['team'] == home_team, color_list[0], color_list[1])
+
+            self.fig = px.bar(
+                sorted_plot_df,
+                x="feature",
+                y="value",
+                color="color",
+                barmode="group",
+                hover_name="name",
+                hover_data={"team": False, "feature": False, "value": True, "color": False},
+                title="Team passes & Shots",
+                custom_data=['name'],
+                color_discrete_map=color_mapping,
+                height=400
+            )
+
+            self.fig.update_layout(
+                legend={"title": "Teams"},
+                xaxis_title=None,
+                yaxis_title="Percentage",
+                margin=dict(l=20, r=20, t=40, b=20),
+                clickmode="event",
+            )
+
+        # Customize legend labels for specific colors
         legend_labels = {'rgb(255,0,0)': home_team, 'rgb(0,255,0)': away_team}
         for trace, legend_label in zip(self.fig.data, legend_labels.values()):
             trace.name = legend_label

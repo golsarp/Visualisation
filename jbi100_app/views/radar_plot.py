@@ -1,8 +1,8 @@
 from dash import dcc, html
 import plotly.graph_objects as go
-import plotly.express as px
 import pandas as pd
 import numpy as np
+import random
 
 
 # csv files used
@@ -20,8 +20,6 @@ class Radar(html.Div):
 
         # Equivalent to `html.Div([...])`
         super().__init__(
-            # className="graph_card",
-            # children=[html.H6(name), dcc.Graph(id=self.html_id)],
             children=[dcc.Graph(id=self.html_id)],
         )
 
@@ -41,7 +39,6 @@ class Radar(html.Div):
         for player in player_list:
             player_r = []
             for i, att_info in enumerate(attributes):
-                # print(i, att_info[0])
                 df = att_info[1]
                 player_df = df[df["player"] == player]
                 # Extract the value of the 'dribbles_completed_pct' column
@@ -54,6 +51,7 @@ class Radar(html.Div):
             [0 if np.isnan(value) else value for value in inner_list]
             for inner_list in r_extend
         ]
+
         # features displayed on plot
         self.fig = go.Figure()
         categories = [
@@ -63,16 +61,20 @@ class Radar(html.Div):
             "Medium",
             "Shots",
         ]
-        # trace_color = ["blue", "red", "green"]
+
+        acceptable_colors = ["green", "yellow", "purple", "orange", "cyan", "magenta", "brown"]
 
         for i in range(len(player_list)):
+            chosen_color = random.choice(acceptable_colors)
+            acceptable_colors.remove(chosen_color)
+
             self.fig.add_trace(
                 go.Scatterpolar(
                     r=r_extend[i],
                     theta=categories,
-                    # line=dict(color=trace_color[i]),
+                    line=dict(color=chosen_color),
                     # filling option
-                    # fill="toself",
+                    fill="toself",
                     name=player_list[i],
                 )
             )
@@ -83,10 +85,7 @@ class Radar(html.Div):
             title="Passes and Shots on Target(%)",
             height=275,
             width=400,
-            # margin=dict(l=0, r=0, t=0, b=0),
             margin=dict(t=27, b=0),
-            # legend=dict(x=0, y=1.02),  # Adjust x and y to position the legend on top
         )
-        # self.fig.show()
 
         return self.fig
