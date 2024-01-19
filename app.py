@@ -30,8 +30,14 @@ from dash import html
 import plotly.express as px
 from dash.dependencies import Input, Output, State
 import pandas as pd
+import tkinter as tk
+from tkinter import messagebox
+
+
 
 if __name__ == "__main__":
+
+    
     selected_players_team_plot_field = []
 
     sum_correlation = False
@@ -121,8 +127,15 @@ if __name__ == "__main__":
 
     # Define the layout
     app.layout = html.Div(
+       
+
         id="app-container",
         children=[
+        #     dcc.ConfirmDialog(
+        #     id="popup-message",
+        #     message="This is your pop-up message to help you how to use the app. To swap players from the field Select and Swap buttons can be used.  " ,                                
+        #     displayed=True,  # Show the message initially
+        # ),
             html.Div(
                 id="left-column",
                 className="eight columns",
@@ -296,6 +309,8 @@ if __name__ == "__main__":
                         },
                     ),
                     html.Div(id="hidden-div", style={"display": "none"}),
+                    
+                    
                 ],
             ),
             html.Div(
@@ -325,6 +340,7 @@ if __name__ == "__main__":
                 ],
             ),
         ],
+        
     )
 
     @app.callback(
@@ -970,5 +986,6 @@ if __name__ == "__main__":
             #app_color = color_list
         time.sleep(1.0)
         return f"The selected category is: {selected_tab}"
+    
 
     app.run_server(debug=False, dev_tools_ui=False)

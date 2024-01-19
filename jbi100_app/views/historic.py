@@ -91,10 +91,10 @@ class Historic(html.Div):
             
             # Define the base color for home and away
             if is_home_team:
-                base_color_home = colors[10]  # Blue
-                base_color_away = colors[11]  # Red
+                base_color_home = colors[11]     # Red  10,11,12,13
+                base_color_away = colors[12]       # green    
             else:
-                base_color_home = colors[12]
+                base_color_home = colors[10]     # blue # orange 
                 base_color_away = colors[13]
             color = base_color_home if is_home else base_color_away
             if is_winner:

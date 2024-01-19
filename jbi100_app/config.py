@@ -20,7 +20,7 @@ color_list = ["rgb(255,0,0)","rgb(0,0,255)","rgb(0, 200, 0)","rgb(255,0,0,0.4)",
 color_red_blind = [
                 "rgb(255, 0, 0)",          # Red
                 "rgb(0, 102, 204)",        # Blue (adjusted for better visibility)
-                "rgb(0, 153, 51)",         # Green (adjusted for better visibility)
+                "rgb(204, 204, 204)",        # Green (adjusted for better visibility)
                 "rgba(255, 0, 0, 0.4)",    # Transparent Red
                 "rgba(0, 102, 204, 0.4)",  # Transparent Blue (adjusted for better visibility)
                 "rgb(255, 255, 0)",        # Yellow

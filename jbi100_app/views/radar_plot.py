@@ -3,6 +3,8 @@ import plotly.graph_objects as go
 import plotly.express as px
 import pandas as pd
 import numpy as np
+import random
+
 
 
 # csv files used
@@ -54,6 +56,9 @@ class Radar(html.Div):
             [0 if np.isnan(value) else value for value in inner_list]
             for inner_list in r_extend
         ]
+        #r_extend = [[0.01 if x == 0 else x for x in inner_list] for inner_list in r_extend]
+
+
         # features displayed on plot
         self.fig = go.Figure()
         categories = [
@@ -64,15 +69,23 @@ class Radar(html.Div):
             "Shots",
         ]
         # trace_color = ["blue", "red", "green"]
+        acceptable_colors = ["green", "yellow", "purple", "orange", "cyan", "magenta", "brown"]
+
 
         for i in range(len(player_list)):
+            chosen_color = random.choice(acceptable_colors)
+            acceptable_colors.remove(chosen_color)
+            
+
+
+
             self.fig.add_trace(
                 go.Scatterpolar(
                     r=r_extend[i],
                     theta=categories,
-                    # line=dict(color=trace_color[i]),
+                    line=dict(color=chosen_color),
                     # filling option
-                    # fill="toself",
+                    fill="toself",
                     name=player_list[i],
                 )
             )
