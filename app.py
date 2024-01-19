@@ -525,6 +525,11 @@ if __name__ == "__main__":
 
         global bar_chart_teams
 
+        global selected_players_team_plot_field
+
+        # Reset the selected_players_team_plot_field
+        selected_players_team_plot_field = []
+
         # check if the teams have changed
         if home_team != bar_chart_teams[0] or away_team != bar_chart_teams[1]:
             bar_chart_teams = [home_team, away_team]
@@ -598,11 +603,6 @@ if __name__ == "__main__":
         # otherwise, select the clicked segment
         else:
             stored_data.append(clicked_segment)
-
-        global selected_players_team_plot_field
-
-        # Reset the selected_players_team_plot_field
-        selected_players_team_plot_field = []
 
         # Iterate over each segment in stored_data to extract the player name
         for segment in stored_data:
