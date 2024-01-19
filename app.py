@@ -1,8 +1,5 @@
-import dash
-
 import plotly.graph_objects as go
 from jbi100_app.main import app
-from jbi100_app.views.scatterplot import Scatterplot
 from jbi100_app.views.field import Field
 from jbi100_app.views.radar_plot import Radar
 from jbi100_app.views.team_plot import Bar
@@ -12,11 +9,8 @@ from jbi100_app.views.table import Table
 from dash import callback_context
 
 
-# import dash_core_components as dcc
 from dash import dcc
 from jbi100_app.config import (
-    position_mapping_home,
-    position_mapping_away,
     player_poss_path,
     formation,
     swap_players,
@@ -27,17 +21,11 @@ from jbi100_app.config import (
 
 
 from dash import html
-import plotly.express as px
 from dash.dependencies import Input, Output, State
 import pandas as pd
-import tkinter as tk
-from tkinter import messagebox
-
-
 
 if __name__ == "__main__":
 
-    
     selected_players_team_plot_field = []
 
     sum_correlation = False
@@ -60,7 +48,7 @@ if __name__ == "__main__":
 
     global_features = ["dribbles_completed", "shots_on_target"]
     # clicked players, initially set to some players
-    selected_players = ["Cristiano Ronaldo", "Aaron Ramsey", "Abdelhamid Sabiri"]
+    selected_players = ["Mathew Leckie", "Joe Allen", "Ben Davies"]
 
     all_players = ["Aaron Mooy", "Aaron Ramsey", "Brennan Johnson"]
 
@@ -100,13 +88,8 @@ if __name__ == "__main__":
     away_table = Table("away-table")
     away_bench = None
 
-    # first 5 teams initially
-    # there are 32 teams, idk how to display them nicely
     df = pd.read_csv(player_poss_path)
     teams = df["team"].unique()
-    #teams = df["team"].unique()[:20]
-
-
 
     app_color = color_list
 
@@ -125,8 +108,6 @@ if __name__ == "__main__":
     # Generate the options for the dropdown using the dictionary
     options = [{"label": alias, "value": column_name} for column_name, alias in column_name_to_alias.items()]
 
-
-
     # Define the layout
     app.layout = html.Div(
        
@@ -134,22 +115,22 @@ if __name__ == "__main__":
         id="app-container",
         children=[
             dcc.ConfirmDialog(
-            id="popup-message",
-            message = (
-                "This is your pop-up message to help you use the app.\n\n"
-                "• To swap players from the field and bench, use Select and Swap buttons under the tables.\n"
-                "• To compare players, use the Select and Plot buttons under the Radar plot.\n"
-                "• Selected players will also be highlighted in the Team plot Bar chart.\n"
-                "• To reconfigure bar chart, use the % or ∑ under the Radar Plot.\n"
-                "• To further compare teams, feel free to change formations using the buttons on top of the Field.\n\n"
-                "• All plots will be updated accordingly after changing teams or formations.\n\n"
-                "• Please wait while the app is updating. You can check this from the tab ribbon.\n\n"
-                "• For a demonstration and further explanation a feel free to visit our Github: https://github.com/golsarp/Visualisation .\n\n"
-
-                "Enjoy the app!!"
+                id="popup-message",
+                message=(
+                    "This is your pop-up message to help you use the app.\n\n"
+                    "• To swap players from the field and bench, use Select and Swap buttons under the tables.\n"
+                    "• To compare players, use the Select and Plot buttons under the Radar plot.\n"
+                    "• Selected players will also be highlighted in the Team plot Bar chart.\n"
+                    "• To reconfigure bar chart, use the % or ∑ under the Radar Plot.\n"
+                    "• To further compare teams, feel free to change formations using the buttons on top of the Field.\n\n"
+                    "• All plots will be updated accordingly after changing teams or formations.\n\n"
+                    "• Please wait while the app is updating. You can check this from the tab ribbon.\n\n"
+                    "• For a demonstration and further explanation a feel free to visit our Github: https://github.com/golsarp/Visualisation .\n\n"
+    
+                    "Enjoy the app!!"
+                ),
+                displayed=True,  # Show the message initially
             ),
-            displayed=True,  # Show the message initially
-        ),
             
             html.Div(
                 id="left-column",
@@ -177,7 +158,6 @@ if __name__ == "__main__":
                                     "display": "inline-block",
                                     "width": "25%",
                                 },
-                                # style={"display": "flex", "width": "25%"},
                             ),
                             html.Div(
                                 [
@@ -195,7 +175,6 @@ if __name__ == "__main__":
                                     ),
                                 ],
                                 style={"display": "inline-block", "width": "25%"},
-                                # style={"display": "flex", "width": "25%"},
                             ),
                             html.Div(
                                 [
@@ -213,7 +192,6 @@ if __name__ == "__main__":
                                     ),
                                 ],
                                 style={"display": "inline-block", "width": "25%"},
-                                # style={"display": "flex", "width": "25%"},
                             ),
                             html.Div(
                                 [
@@ -231,10 +209,8 @@ if __name__ == "__main__":
                                     ),
                                 ],
                                 style={"display": "inline-block", "width": "25%"},
-                                # style={"display": "flex", "width": "25%"},
                             ),
                         ],
-                        # style={"display": "flex", "flexWrap": "wrap"},
                     ),
                     # Existing components
                     # field object
@@ -246,7 +222,6 @@ if __name__ == "__main__":
                                     # html.H4("Home Bench"),
                                     html.P(id="table_out_home"),
                                     html.P(id="table_out_home_high"),
-                                    ################# home bench ##########
                                     html.Button(
                                         "Swap Home Off ", id="home-swap", n_clicks=0
                                     ),
@@ -258,7 +233,6 @@ if __name__ == "__main__":
                                     ),
                                     # home_table,
                                 ],
-                                # html.Button("Swap Home ", id="home-swap", n_clicks=0),
                                 style={
                                     "display": "inline-block",
                                     "width": "30%",
@@ -300,7 +274,6 @@ if __name__ == "__main__":
                                 ],
                                 style={
                                     "display": "inline-block",
-                                    # "width": "30%",
                                 },
                             ),
                         ],
@@ -324,22 +297,12 @@ if __name__ == "__main__":
                         },
                     ),
                     html.Div(id="hidden-div", style={"display": "none"}),
-                    
-                    
                 ],
             ),
             html.Div(
                 id="right-column",
                 className="four columns",
                 children=[
-                    # radar plot
-                    # radar_plot,
-                    # html.Button("Plot button", id="radar-button", n_clicks=0),
-                    # html.Button(
-                    #     children="Select Players Off",
-                    #     id="select-button",
-                    #     n_clicks=0,
-                    # ),
                     # team plot
                     team_plot,
                     dcc.Store(id="team-plot-store", data={}),
@@ -411,7 +374,6 @@ if __name__ == "__main__":
 
         triggered_input_id = callback_context.triggered_id
 
-
         # get selected players
         global home_selected_field
         global home_selected_bench
@@ -434,28 +396,21 @@ if __name__ == "__main__":
                     selected_players.append(clicked_name)
             # selecting for bench player swap
             elif not player_select and home_swap:
-                # print("here ")
                 # check if its in home team
                 in_team = (player_dataf["player"] == clicked_name) & (
                     player_dataf["team"] == home
                 )
                 if clicked_name not in selected_players and in_team.any():
                     home_selected_field = clicked_name
-                # print(home_selected_field)
 
             # for selecting away players
             elif not player_select and away_swap:
-                # print("away selection ")
                 # check if its in home team
                 in_team = (player_dataf["player"] == clicked_name) & (
                     player_dataf["team"] == away
                 )
                 if clicked_name not in selected_players and in_team.any():
                     away_selected_field = clicked_name
-                # print(away_selected_field)
-
-        # print("click", click_data)
-        # print("swap", swap_home_but)
 
         # players changed make them null so we update in field
         if (
@@ -464,8 +419,7 @@ if __name__ == "__main__":
             or triggered_input_id == "home-formation"
             or triggered_input_id == "away-formation"
         ):
-            # print("made it none ")
-            # print(triggered_input_id)
+
             player_dataf = None
             home_bench = None
             away_bench = None
@@ -482,7 +436,6 @@ if __name__ == "__main__":
                 home_selected_field = None
 
         if triggered_input_id == "away-swap_players":
-            # print("Entered here ")
             if away_selected_bench is not None and away_selected_field is not None:
                 player_dataf, away_bench = swap_players(
                     away_selected_field,
@@ -492,7 +445,6 @@ if __name__ == "__main__":
                 )
                 away_selected_bench = None
                 away_selected_field = None
-        #print("app colors ",app_color)
         # update field with globals
         player_pos, player_df, home_t, away_t = field.positionPlayer(
             home,
@@ -512,7 +464,6 @@ if __name__ == "__main__":
         player_dataf = player_df
 
         global all_players
-        # all_players = player_df["player"].unique()
         all_players = player_dataf["player"].unique()
 
         # for tables
@@ -520,7 +471,6 @@ if __name__ == "__main__":
         home_bench = home_t
 
         away_bench = away_t
-        # print(home_bench)
         # update field
         time.sleep(0.5)
         return player_pos
@@ -538,11 +488,14 @@ if __name__ == "__main__":
 
     @app.callback(
         Output(historic_plot.html_id, "figure"),
-        [Input("home-dropdown", "value"), Input("away-dropdown", "value"),Input("my-tabs", "value")],
+        [
+            Input("home-dropdown", "value"),
+            Input("away-dropdown", "value"),
+            Input("my-tabs", "value")],
     )
-    def update_historic(home, away,color):
+    def update_historic(home, away, color):
         time.sleep(0.2)
-        return historic_plot.build_historic(home, away,app_color)
+        return historic_plot.build_historic(home, away, app_color)
 
     @app.callback(
         Output("team-plot-store", "data"),
@@ -552,7 +505,7 @@ if __name__ == "__main__":
         Input("away-dropdown", "value"),  # away team
         Input("team-plot-dropdown", "value"),
     )
-    def store_click_data(click_data, stored_data, home_team, away_team, features):
+    def store_click_data(click_data, stored_data, home_team, away_team, plot_features):
 
         global bar_chart_teams
 
@@ -569,8 +522,8 @@ if __name__ == "__main__":
         global global_features
 
         # check if the features have changed
-        if len(features) != len(global_features):
-            global_features = features
+        if len(plot_features) != len(global_features):
+            global_features = plot_features
             return []
 
         # if no point has been clicked yet, initialize an empty list
@@ -665,14 +618,14 @@ if __name__ == "__main__":
             Input("my-tabs", "value")
         ],
     )
-    def update_team_plot(home_team, away_team, home_form, away_from, features, stored_data_transfer, swap_home,
+    def update_team_plot(home_team, away_team, home_form, away_from, features_param, stored_data_transfer, swap_home,
                          swap_away, highlight_button, reset_button, mode, color):
 
         # delay needed in order to ensure that the filed is updated
         time.sleep(1.0)
 
         global sorted_features
-        sorted_features = sorted(features)
+        sorted_features = sorted(features_param)
 
         global sum_correlation
 
@@ -691,9 +644,10 @@ if __name__ == "__main__":
         # Get the dataframe
         sorted_plot_df = team_plot.get_dataframe()
 
-        if (sorted_plot_df is not None
+        if (
+                sorted_plot_df is not None
                 and sum_correlation is True
-                and len(features) == sorted_plot_df['feature'].nunique()
+                and len(features_param) == sorted_plot_df['feature'].nunique()
                 and home_team == bar_chart_teams_plot[0]
                 and away_team == bar_chart_teams_plot[1]
                 and home_form == home_form_bar
@@ -721,7 +675,7 @@ if __name__ == "__main__":
         else:
 
             if sorted_plot_df is not None:
-                if len(features) != sorted_plot_df['feature'].nunique():
+                if len(features_param) != sorted_plot_df['feature'].nunique():
                     updated_stacked_bar = True
 
             if home_team != bar_chart_teams_plot[0] or away_team != bar_chart_teams_plot[1]:
@@ -774,8 +728,6 @@ if __name__ == "__main__":
                 stored_data[team_index] = []
             stored_data[team_index].append(clicked_point)
 
-        # if stored_data is not initialized yet, initialize it with all points selected.
-        # If stored data is empty, initialize it with all points selected
         if not stored_data or (
             len(stored_data) == 1 and not next(iter(stored_data.values()))
         ):
@@ -856,10 +808,6 @@ if __name__ == "__main__":
             new_label = "%"
             return new_label
 
-
-    # bench for home
-
-
     @app.callback(
         Output("table_out_home", "children"),
         [
@@ -869,11 +817,10 @@ if __name__ == "__main__":
             Input("my-tabs", "value")
         ],
     )
-    def update_table(home_drop, home_form, swap,color):
+    def update_table(home_drop, home_form, swap, color):
         # dealy needed in order to ensure that the filed is updated
         time.sleep(1.5)
-        # print(home_bench.columns)
-        return home_table.plot_table(home_bench,home=True,colors=app_color)
+        return home_table.plot_table(home_bench, home=True, colors=app_color)
 
     @app.callback(
         Output("table_out_home_high", "children"),
@@ -884,19 +831,11 @@ if __name__ == "__main__":
     def update_graph_home(active_cell):
         time.sleep(1.0)
         global home_selected_bench
-        # print("triggereed")
         if active_cell:
-            # print("inside")
             cell_data = home_bench.iloc[active_cell["row"]][active_cell["column_id"]]
-            # print(f'Data: "{cell_data}" from table cell: {active_cell}')
             home_selected_bench = cell_data
             if not home_swap:
-                # print("Added from home bench")
                 selected_players.append(cell_data)
-            # print("home bench ", home_selected_bench)
-
-            # return f'Data: "{cell_data}" from table cell: {active_cell}'
-        # return "Click the Players to Swap"
 
     # **********************************
     # bench for away
@@ -909,11 +848,11 @@ if __name__ == "__main__":
             Input("my-tabs", "value"),
         ],
     )
-    def update_table(away_drop, away_from, swap_away,color):
+    def update_table(away_drop, away_from, swap_away, color):
         # dealy needed in order to ensure that the filed is updated
 
         time.sleep(1.5)
-        return away_table.plot_table(away_bench,home=False,colors=app_color)
+        return away_table.plot_table(away_bench, home=False, colors=app_color)
 
     @app.callback(
         Output("table_out_away_high", "children"),
@@ -923,23 +862,15 @@ if __name__ == "__main__":
     )
     def update_graph_away(active_cell):
         time.sleep(1.0)
-        # print("triggereed")
         global away_selected_bench
         if active_cell:
-            # print("inside")
             cell_data = away_bench.iloc[active_cell["row"]][active_cell["column_id"]]
             away_selected_bench = cell_data
 
             # add to radar plot from away bench
             if not away_swap:
-                # print("Added from bench")
                 selected_players.append(cell_data)
 
-            # print(f'Data: "{cell_data}" from table cell: {active_cell}')
-            # return f'Data: "{cell_data}" from table cell: {active_cell}'
-        # return "Click the Players to Swap"
-
-    ########################## Swapping bench players #####################
     @app.callback(
         Output("home-swap", "children"),
         [Input("home-swap", "n_clicks")],
@@ -986,22 +917,17 @@ if __name__ == "__main__":
 
     @app.callback(Output("hidden-div", "children"), [Input("my-tabs", "value")])
     def update_output(selected_tab):
-        #print("tab: ", selected_tab)
         global app_color
 
-
-            # You can add more logic based on the selected_tab value if needed
+        # You can add more logic based on the selected_tab value if needed
         if selected_tab == "tab1":
             app_color = color_list
         elif selected_tab == "tab2":
             app_color = color_red_blind
-            #app_color = color_list
         elif selected_tab == "tab3":
             app_color = color_list_random
-            #app_color = color_list
         time.sleep(1.0)
         return f"The selected category is: {selected_tab}"
     
 
     app.run_server(debug=False, dev_tools_ui=False)
-

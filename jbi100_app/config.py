@@ -1,4 +1,4 @@
-# Here you can add any global configuations
+# Here you can add any global configurations
 
 color_list1 = ["green", "blue"]
 color_list2 = ["red", "purple"]
@@ -16,7 +16,23 @@ DF = 2
 MF = 4
 FW = 6
 
-color_list = ["rgb(255,0,0)","rgb(0,0,255)","rgb(0, 200, 0)","rgb(255,0,0,0.4)","rgb(0,0,255,0.4)","rgb(255, 255, 0)","rgb(0, 128, 0)","rgb(128, 128, 128)","rgb(217, 217, 217)","rgb(230, 230, 230)",[0, 0, 255],[255, 0, 0],[0, 255, 0],[255, 165, 0], "rgb(255,153,0)"]
+color_list = [
+    "rgb(255,0,0)",
+    "rgb(0,0,255)",
+    "rgb(0, 200, 0)",
+    "rgb(255,0,0,0.4)",
+    "rgb(0,0,255,0.4)",
+    "rgb(255, 255, 0)",
+    "rgb(0, 128, 0)",
+    "rgb(128, 128, 128)",
+    "rgb(217, 217, 217)",
+    "rgb(230, 230, 230)",
+    [0, 0, 255],
+    [255, 0, 0],
+    [0, 255, 0],
+    [255, 165, 0],
+    "rgb(255,153,0)"
+]
 color_red_blind = [
                 "rgb(255, 0, 0)",          # Red
                 "rgb(0, 102, 204)",        # Blue (adjusted for better visibility)
@@ -30,15 +46,15 @@ color_red_blind = [
                 "rgb(217, 217, 217)",      # Light Gray
                 [0, 51, 204],              # Dark Blue (adjusted for better visibility)
                 [255, 77, 77],             # Salmon (adjusted for better visibility)
-                [110, 110, 110],            # Bright Green
-                [0, 0, 0],             # Orange (adjusted for better visibility)
+                [216, 205, 63],            # Bright Green
+                [0, 0, 0],                 # Orange (adjusted for better visibility)
                 "rgb(255,153,0)",
             ]
 
 color_list_random = [
                 "rgb(178, 34, 34)",         # Firebrick (adjusted for better visibility)
                 "rgb(0, 102, 204)",         # Blue
-                "rgb(204, 204, 204)",           # Green (adjusted for better visibility)
+                "rgb(204, 204, 204)",       # Green (adjusted for better visibility)
                 "rgba(178, 34, 34, 0.4)",   # Transparent Firebrick (adjusted for better visibility)
                 "rgba(0, 102, 204, 0.4)",   # Transparent Blue
                 "rgb(255, 255, 0)",         # Yellow
@@ -49,15 +65,14 @@ color_list_random = [
                 [0, 51, 204],               # Dark Blue
                 [255, 77, 77],              # Salmon
                 [0, 204, 0],                # Bright Green
-                [110, 110, 110],  # Orange
+                [110, 110, 110],            # Orange
                 "rgb(255,153,0)",
             ]
 
 
-   # 0 home color , 1 away color , 2 field color , 3 home bench color,  4 away bench color , 5 selected player color, 6 fiedl gird color, 7 selected bench , 8 bench non editable, 9 bench title, 10-11-12-13
+# 0 home color , 1 away color , 2 field color , 3 home bench color,  4 away bench color , 5 selected player color,
+# 6 filed gird color, 7 selected bench , 8 bench non-editable, 9 bench title, 10-11-12-13
       
-
-
 
 def swap_players(home_selected_field, home_selected_bench, home_bench, player_dataf):
     drop_columns = ["position_x", "position_y"]
@@ -92,5 +107,5 @@ def swap_players(home_selected_field, home_selected_bench, home_bench, player_da
     # field player to bench
     home_bench.loc[home_b_pl_data.index] = home_field_pl_data.values
 
-    # return home_selected_field, home_selected_bench
+    # return the home_selected_field and home_selected_bench
     return player_dataf, home_bench
