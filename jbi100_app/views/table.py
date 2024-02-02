@@ -3,7 +3,7 @@ from dash import html, dash_table
 
 class Table(html.Div):
     """
-    A class used to represent a Table in Dash.
+    Table class used for the home and away bench.
 
     ...
 

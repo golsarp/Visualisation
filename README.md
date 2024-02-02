@@ -1,69 +1,53 @@
-# JBI100-example-app
+# JBI100-Group-50-app
 
 ## About this app
+This is the visualisation app of group 50. It is based on the provided template and uses the libraries specified
+in the requirements.txt file.
 
-You can use this as a basic template for your JBI100 visualization project.
+## Get the app
+
+### Clone the repository
+This app can either be mounted locally or cloned from the remote repository. To clone the repository, use the following command:
+```
+gh repo clone golsarp/Visualisation
+```
+### Mount the app locally
+To mount the app locally, download the zip file from the repository and extract it to a folder of your choice. 
+Then open a command prompt and navigate to the folder where the app is located.
 
 ## Requirements
 
-* Python 3 (add it to your path (system variables) to make sure you can access it from the command prompt)
-* Git (https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
+* This app has been developed in Python 3.9.18. You can set up a virtual environment and the interpreter 
+with this version of Python using tools such as [conda](https://conda.io/projects/conda/en/latest/).
+
+* This app requires the following libraries:
+  * [Dash](https://dash.plot.ly/)
+  * [Pandas](https://pandas.pydata.org/)
+  * [Plotly](https://plotly.com/python/)
+  * [Numpy](https://numpy.org/)
+
+  You can install these libraries in the correct versions using pip:
+    ```
+    pip install -r requirements.txt
+    ```
 
 ## How to run this app
-
-We suggest you to create a virtual environment for running this app with Python 3. Clone this repository 
-and open your terminal/command prompt in the root folder.
-
-
-download a zip file of this folder, unzip it and copy it to a folder of choice on your computer
-
-open a command prompt and run the following commands:
-
-```
-> cd <path to you folder of choice>\dashframework-main\dashframework-main 
-> python -m venv venv
-
-```
-If python is not recognized use python3 instead
-
-In Windows: 
-
-```
-> venv\Scripts\activate
-
-```
-In Unix system:
-```
-> source venv/bin/activate
-```
-
-(Instead of a python virtual environment you can also use an anaconda virtual environment.
- 
-Requirements:
-
-• Anaconda (https://www.anaconda.com/) or Miniconda (https://docs.conda.io/en/latest/miniconda.html)
-
-• The difference is that Anaconda has a user-friendly UI but requires a lot of space, and Miniconda is Command Prompt based, no UI, but requires considerably less space.
-
-Then you should replace the lines: python -m venv venv and venv\Scripts\activate or source venv/bin/activate with the following:
-
-```
-> conda create -n yourenvname
-> conda activate yourenvname
-```
-)
-
-Install all required packages by running:
-```
-> pip install -r requirements.txt
-```
-
-Run this app locally with:
+The entrance point of the app is the file app.py. To run the app, open a command prompt and navigate to the folder where the app is located. Then run the following command:
 ```
 > python app.py
 ```
-You will get a http link, open this in your browser to see the results. You can edit the code in any editor (e.g. Visual Studio Code) and if you save it you will see the results in the browser.
+You will get a http link, open this in your browser to see the results.
 
-## Resources
+## How to use this app
+The instruction video for the app can be found on [YouTube](https://youtu.be/sIYFBSFhA4w?feature=shared).
 
-* [Dash](https://dash.plot.ly/)
+## Potential issues and how to fix them
+We have observed that on some machines the bench tables do not initialize every time. In case that is the case for you,
+there are two causes of actions which you can take.
+* Toggle the home team and away team dropdown. This will force the tables to reinitialize.
+* Increase the sleep in the callback functions for the benches in the app.py file.
+This will give the tables more time to initialize.
+
+## Authors of the app
+This app was developed by the group members of group 50. There are no resources implemented from external sources beyond
+the libraries specified in the requirements.txt file and the template provided by the course coordinators.
