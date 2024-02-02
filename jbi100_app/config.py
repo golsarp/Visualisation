@@ -75,37 +75,55 @@ color_list_random = [
       
 
 def swap_players(home_selected_field, home_selected_bench, home_bench, player_dataf):
+    """
+    This function swaps a player from the home team's field with a player from the home team's bench.
+
+    Parameters:
+    home_selected_field (str): The name of the player on the field to be swapped.
+    home_selected_bench (str): The name of the player on the bench to be swapped.
+    home_bench (DataFrame): The DataFrame containing the home team's bench players' data.
+    player_dataf (DataFrame): The DataFrame containing the home team's field players' data.
+
+    Returns:
+    player_dataf (DataFrame): The updated DataFrame containing the home team's field players' data after the swap.
+    home_bench (DataFrame): The updated DataFrame containing the home team's bench players' data after the swap.
+    """
+
+    # Define the columns to be dropped
     drop_columns = ["position_x", "position_y"]
 
-    # get the row of bench player
+    # Get the row of the selected bench player
     home_b_pl_data = home_bench[home_bench["player"] == home_selected_bench]
 
-    # bench values
+    # Get the position values of the selected bench player
     bench_poss = home_b_pl_data[["position_x", "position_y"]]
 
-    # drop bench positions
+    # Drop the position columns from the selected bench player's data
     home_b_pl_data_dropped = home_b_pl_data.drop(columns=drop_columns)
 
-    # get the player value on field
+    # Get the row of the selected field player
     home_field_pl_data = player_dataf[player_dataf["player"] == home_selected_field]
 
+    # Define the columns to be dropped
     drop_field = ["position_x", "position_y", "corrected_y", "color"]
 
-    # pos values of field player
+    # Get the position and color values of the selected field player
     field_pos = home_field_pl_data[["position_x", "position_y", "corrected_y", "color"]]
 
+    # Drop the position and color columns from the selected field player's data
     home_field_pl_data = home_field_pl_data.drop(columns=drop_field)
 
-    # new bench player going into the field
+    # Assign the position and color values of the selected field player to the selected bench player
     home_b_pl_data_dropped[drop_field] = field_pos.values
 
+    # Assign the position values of the selected bench player to the selected field player
     home_field_pl_data[drop_columns] = bench_poss.values
 
-    # get bench player in field
+    # Update the field players' data with the new data of the selected field player
     player_dataf.loc[home_field_pl_data.index] = home_b_pl_data_dropped.values
 
-    # field player to bench
+    # Update the bench players' data with the new data of the selected bench player
     home_bench.loc[home_b_pl_data.index] = home_field_pl_data.values
 
-    # return the home_selected_field and home_selected_bench
+    # Return the updated field players' data and bench players' data
     return player_dataf, home_bench

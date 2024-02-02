@@ -6,7 +6,46 @@ import plotly.express as px
 
 
 class Bar(html.Div):
+    """
+    A class used to represent a Bar plot.
+
+    Attributes
+    ----------
+    fig : plotly.graph_objs._figure.Figure
+        a plotly figure object that represents the bar plot
+    html_id : str
+        a string that represents the id of the html element
+    features : list
+        a list of features to be plotted
+    teams : list
+        a list of teams to be plotted
+    feature_values : list
+        a list of feature values to be plotted
+    sorted_plot_df : pandas.DataFrame
+        a pandas DataFrame that contains the sorted plot data
+
+    Methods
+    -------
+    plot_bar(categories, names, color_list, home_team, away_team, percent_df=None)
+        Plots the bar chart based on the provided parameters.
+    get_dataframe()
+        Returns the sorted plot DataFrame.
+    """
     def __init__(self, name, feature_list, teams_list, feature_values):
+        """
+        Constructs all the necessary attributes for the Bar object.
+
+        Parameters
+        ----------
+            name : str
+                the name of the Bar object
+            feature_list : list
+                the list of features to be plotted
+            teams_list : list
+                the list of teams to be plotted
+            feature_values : list
+                the list of feature values to be plotted
+        """
         self.fig = None
         self.html_id = name
         self.features = feature_list
@@ -19,7 +58,29 @@ class Bar(html.Div):
         )
 
     def plot_bar(self, categories, names, color_list, home_team, away_team, percent_df=None):
+        """
+        Plots the bar chart based on the provided parameters.
 
+        Parameters
+        ----------
+            categories : list
+                the list of categories to be plotted
+            names : list
+                the list of names to be plotted
+            color_list : list
+                the list of colors to be used in the plot
+            home_team : str
+                the name of the home team
+            away_team : str
+                the name of the away team
+            percent_df : pandas.DataFrame, optional
+                a pandas DataFrame that contains the percentage data (default is None)
+
+        Returns
+        -------
+            plotly.graph_objs._figure.Figure
+                a plotly figure object that represents the bar plot
+        """
         column_name_to_alias = {
             "dribbles_completed": "Dribbles",
             "passes_short": "Short",
@@ -141,10 +202,26 @@ class Bar(html.Div):
         return self.fig
 
     def get_dataframe(self):
+        """
+        Returns the sorted plot DataFrame.
+
+        Returns
+        -------
+            pandas.DataFrame
+                a pandas DataFrame that contains the sorted plot data
+        """
         return self.sorted_plot_df
 
 
 def get_datasets():
+    """
+    Returns the datasets required for the plot.
+
+    Returns
+    -------
+        tuple
+            a tuple containing three pandas DataFrames that represent the possession, shooting, and passing data
+    """
     # get current wd
     current_wd = os.getcwd()
     # go to top level wd

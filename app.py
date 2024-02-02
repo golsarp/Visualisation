@@ -26,76 +26,99 @@ import pandas as pd
 
 if __name__ == "__main__":
 
+    # List of players selected for the team plot field
     selected_players_team_plot_field = []
 
+    # Boolean flag to indicate if sum correlation is active
     sum_correlation = False
 
+    # Boolean flag to indicate if the stacked bar has been updated
     updated_stacked_bar = False
 
+    # String representing the formation of the home team for the bar chart
     home_form_bar = '4-3-3-1'
 
+    # String representing the formation of the away team for the bar chart
     away_form_bar = '4-3-3-1'
 
+    # Integer representing the number of home team swaps for the bar chart
     swap_home_bar = 0
 
+    # Integer representing the number of away team swaps for the bar chart
     swap_away_bar = 0
 
+    # List of sorted features
     sorted_features = []
 
+    # List of teams for the bar chart
     bar_chart_teams = ["Australia", "Wales"]
 
+    # List of teams for the bar chart plot
     bar_chart_teams_plot = ["Australia", "Wales"]
 
+    # List of global features
     global_features = ["dribbles_completed", "shots_on_target"]
-    # clicked players, initially set to some players
+
+    # List of selected players, initially set to some players
     selected_players = ["Mathew Leckie", "Joe Allen", "Ben Davies"]
 
+    # List of all players
     all_players = ["Aaron Mooy", "Aaron Ramsey", "Brennan Johnson"]
 
-    # selected teams
+    # List of selected teams
     selected_teams = ["Australia", "Wales"]
 
-    # team features
+    # List of team features
     features = ["dribbles_completed", "passes_short", "shots_on_target"]
 
-    # If selection is on
+    # Boolean flag to indicate if player selection is on
     player_select = False
 
-    # to swap bench players
+    # Boolean flag to indicate if home team bench players are to be swapped
     home_swap = False
     home_selected_field = None
     home_selected_bench = None
 
-    # to swap away bench
+    # Boolean flag to indicate if away team bench players are to be swapped
     away_swap = False
     away_selected_field = None
     away_selected_bench = None
 
+    # DataFrame for player data, initially set to None
     player_dataf = None
 
     # Field object
     field = Field("Footbal Field", "x", "y")
 
-    # radar plot
+    # Radar plot object
     radar_plot = Radar("Radar-plot", selected_players)
-    # historical plot
+
+    # Historical plot object
     historic_plot = Historic("Historic-plot")
 
+    # Home bench, initially set to None
     home_bench = None
 
+    # Home table object
     home_table = Table("home-table")
 
+    # Away table object
     away_table = Table("away-table")
+
+    # Away bench, initially set to None
     away_bench = None
 
+    # DataFrame for player positions
     df = pd.read_csv(player_poss_path)
     teams = df["team"].unique()
 
+    # List of colors for the app
     app_color = color_list
 
-    # team plot
+    # Team plot object
     team_plot = Bar("Team-plot", selected_players, selected_teams, features)
 
+    # Dictionary mapping column names to aliases
     column_name_to_alias = {
         "dribbles_completed": "Dribbles",
         "passes_short": "Short",
@@ -110,10 +133,10 @@ if __name__ == "__main__":
 
     # Define the layout
     app.layout = html.Div(
-       
-
         id="app-container",
         children=[
+            # The ConfirmDialog component displays a pop-up message to the user when the app is first loaded.
+            # The message provides instructions on how to use the app.
             dcc.ConfirmDialog(
                 id="popup-message",
                 message=(
@@ -318,7 +341,6 @@ if __name__ == "__main__":
                 ],
             ),
         ],
-        
     )
 
     @app.callback(

@@ -3,7 +3,26 @@ import plotly.graph_objects as go
 
 
 class Scatterplot(html.Div):
+    """
+    Scatterplot class that extends html.Div. It is used to create and update a scatterplot graph.
+
+    Attributes:
+        html_id (str): The id of the html element. It is created by converting the name to lowercase and replacing spaces with hyphens.
+        df (DataFrame): The DataFrame that contains the data to be plotted.
+        feature_x (str): The name of the column in df that will be plotted on the x-axis.
+        feature_y (str): The name of the column in df that will be plotted on the y-axis.
+    """
+
     def __init__(self, name, feature_x, feature_y, df):
+        """
+        The constructor for Scatterplot class.
+
+        Parameters:
+            name (str): The name of the scatterplot.
+            feature_x (str): The name of the column in df that will be plotted on the x-axis.
+            feature_y (str): The name of the column in df that will be plotted on the y-axis.
+            df (DataFrame): The DataFrame that contains the data to be plotted.
+        """
         self.html_id = name.lower().replace(" ", "-")
         self.df = df
         self.feature_x = feature_x
@@ -15,6 +34,16 @@ class Scatterplot(html.Div):
         )
 
     def update(self, selected_color, selected_data):
+        """
+        The function to update the scatterplot with new data and color.
+
+        Parameters:
+            selected_color (str): The color to be used for the selected points.
+            selected_data (dict): The data to be plotted. If it is None, all points in df are plotted.
+
+        Returns:
+            fig: The updated figure.
+        """
         self.fig = go.Figure()
 
         x_values = self.df[self.feature_x]
